@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="root1">
+        
+    </div> 
+
+
+    <div id="root2">
+
+    </div>
+
+
+    <div id="root3">
+
+    </div>
+
+    <div id="root4">
+
+    </div>
+
+
+    <!-- react cdn -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!-- react dom cdn -->
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- babel cdn -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- define type as a babel  -->
+    <script type="text/babel">
+
+
+        // jsx란? 
+        // JSX(JavaScript XML)는 Javascript에 XML을 추가한 확장한 문법이다.
+        // 타입스크립트처럼, 자바스크립트를 조금 변형한 언어라고 이해해도 된다.
+        // 어떤 문법적인 요소를 조금 추가한다든가, 어딘가를 조금 바꾼 자바스크립트다.
+        // 아예 새로운 언어라든가, 독립적인 언어라고 보기에는 좀 어렵다.
+        // 자바스크립트이기는 한데 프레임워크 정도로 기능이 추가된 언어라고 할까.
+        // 지금 아래처럼, 자바스크립트이기는 한데, <h1> 같은 xml 태그들을 쓸 수 있는 기능부터가 jsx다.
+        // JavaScript + Xml => JSX
+        ReactDOM.render(
+                <h1>Hello, world!</h1>,
+                document.getElementById('root1')
+        );
+
+        // jsx 안에 js 표현식
+        // jsx에서는 중괄호 안에 JavaScript에서 사용할 수 있는 모든 표현식을 넣을 수 있다.
+        function formatName(user) {
+            return user.firstName + ' ' + user.lastName;
+        }
+        const user = { firstName: 'Tom',
+                        lastName: 'Holland'}
+        const greetings = "Hello";
+        const ele =             
+            <div>
+                <h1> jsx - js표현식</h1>
+                <h2> {greetings} React!!! </h2>
+                <h2> {greetings + ' World!!!'}</h2>
+                <h2> {user.firstName} Cruise </h2>
+                <h2> {user.firstName + ' Hardy'} </h2>
+                <h2> {formatName(user)} </h2>
+            </div>;
+        ReactDOM.render(
+            ele,
+            document.getElementById('root2')
+        );
+
+        // jsx로 속성 넣기
+        // 중괄호를 사용하여 속성값에 JavaScript 표현식을 넣을 수도 있다.
+        // JSX는 HTML보다는 JavaScript에 가깝기 때문에, React DOM은 속성 이름을 camelCase로 붙인다.
+        const attrValue = "This is test Value";
+        const attrHref = "?hello=world";
+        ReactDOM.render(
+            <div>
+                <input type="button" value={attrValue}/>
+                <a href={attrHref}>click here</a>
+            </div>
+            ,
+            document.getElementById('root3')
+        );
+
+        // 단, 속성값에 JavaScript 표현식을 삽입할 때 중괄호 주변에 따옴표를 입력하지 않는다.
+        // 따옴표 또는 중괄호 둘 중 하나만 사용하고, 한 속성값에 두 가지를 동시에 사용하면 안 된다.
+        // ReactDOM.render(
+        //         <div>
+        //             <a href={attrHref + "&hey=here"} >it works</a>    
+        //             <a href={attrHref} + '&hey=here'>it occurs error</a>    
+        //         </div>
+        //     ,
+        //     document.getElementById('root3')
+        // )
+
+
+        // jsx 객체 변환
+        // Babel은 JSX를 React.createElement() 호출로 컴파일한다.
+        // 다음 ele1 과 ele2는 같은 내용입니다.
+        const ele1 = (
+            <h1 className="greeting">
+                Hello, world!
+            </h1>
+        );
+        const ele2 = React.createElement(
+            'h1',
+            {className: 'greeting'},
+            'Hello, world!'
+        );
+
+        // 위 ele2 는 아래 ele3과 같은 객체를 생성합니다.
+        const ele3 = {
+            type: 'h1',
+            props: {
+                className: 'greeting',
+                children: 'Hello, world!'
+            }
+        };
+        // 이러한 객체를 리액트 객체, 리액트 엘리먼트라고 합니다.
+        ReactDOM.render(
+            ele,
+            document.getElementById('root4')
+        )
+    </script>
+
+</body>
+</html>
