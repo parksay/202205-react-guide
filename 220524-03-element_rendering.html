@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <div id="root1">
+
+    </div>
+    
+
+    <div id="root2">
+
+    </div>
+
+    <div id="root3">
+
+    </div>
+
+    <!-- react cdn -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!-- react dom cdn -->
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- babel cdn -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- define type as a babel  -->
+    <script type="text/babel">
+
+        // 엘리먼트란
+        // 엘리먼트는 React 앱을 이루고 있는 가장 작은 단위다.
+        // 엘리먼트는 화면에 표시할 내용을 기술한다.
+        // 브라우저 DOM 엘리먼트와 달리 React 엘리먼트는 일반 객체다.
+        // React 엘리먼트는 쉽게 생성할 수 있다.
+        // React DOM은 React 엘리먼트와 일치하도록 DOM을 업데이트한다.
+        // 참고로, '컴포넌트'와는 다른 개념이므로 혼동하지 않도록 유의한다.
+        const ele1 = React.createElement(
+            'h1',
+            {className:'hello'},
+            'world'
+        )
+        const ele2 = <h1>Hello, World!</h1>;
+        ReactDOM.render(ele1, document.getElementById('root1'));
+
+        // 루트 돔 노드란
+        // HTML 파일 어딘가에 <div>가 있다고 가정해 보자.
+        const root2 = document.getElementById('root2');
+        // 이 안에 들어가는 모든 엘리먼트를 React DOM에서 관리하고, 이것을 루트(root) DOM 노드라고 부른다.
+        // React로 구현된 애플리케이션은 일반적으로 하나의 루트 DOM 노드가 있다.
+        // React를 기존 앱에 통합하려는 경우 원하는 만큼 많은 수의 독립된 루트 DOM 노드가 있을 수 있다.
+        // React 엘리먼트를 루트 DOM 노드에 렌더링하려면 엘리먼트와 루트 노드를 ReactDOM.render()로 넣어주면 된다.
+        ReactDOM.render(<h1>this is element for root2</h1>, document.getElementById('root2'));
+
+
+        // 렌더링 된 엘리먼트를 업데이트하기
+        // React 엘리먼트는 불변객체다.
+        // 엘리먼트를 생성한 이후에는 해당 엘리먼트의 자식이나 속성을 변경할 수 없다.
+        // 엘리먼트는 영화에서 한 장면을 사진으로 찍은 것처럼 특정 시점의 UI를 보여줍니다.
+        // 지금까지 배운 내용을 바탕으로 하면 UI를 업데이트하는 유일한 방법은, 새로운 엘리먼트를 생성하고 ReactDOM.render()를 다시 실행하는 것이다.
+        // 아래는 setInterval() 함수를 이용해 초마다 렌더링을 다시 하는 기능이다.
+        function tick() {
+            const ele3 = (
+                <div>
+                    <h1>rendering per sec</h1>
+                    <h2>It is {new Date().toLocaleTimeString()}.</h2>
+                </div>
+            );
+            ReactDOM.render(ele3, document.getElementById('root3'));
+        }
+        setInterval(tick, 1000); 
+        // 참고로 React DOM은 이전의 엘리먼트와 비교하여 필요한 부분만 DOM을 업데이트 한다.
+        // ReactDOM.render() 함수를 통해 전체 엘리먼트를 다시 그리도록 만들었지만, 
+        // 실제로 변경이 일어나는 부분은 내용이 변경된 텍스트 노드뿐이다.
+        // 크롬 개발자 도구(F11)을 통해 확인해 보자.
+    </script>
+</body>
+</html>

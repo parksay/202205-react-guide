@@ -1,0 +1,2 @@
+//Uncaught Error: Target container is not a DOM element.
+//body 에서 element를 넣어줘야 하는데 대상이 되는 html 요소를 찾지 못할 때

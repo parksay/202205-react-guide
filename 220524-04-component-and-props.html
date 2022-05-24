@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>-------------------root1--------------------------------</p>
+    <div id="root1">
+
+    </div>
+
+
+    <p>-------------------root2--------------------------------</p>
+    <div id="root2">
+
+    </div>
+
+
+    <p>-------------------root3--------------------------------</p>
+    <div id="root3">
+
+    </div>
+
+    <p>-------------------root4--------------------------------</p>
+    <div id="root4">
+
+    </div>
+
+    <p>-------------------root5--------------------------------</p>
+    <div id="root5">
+
+    </div>
+
+    <p>-------------------root6--------------------------------</p>
+    <div id="root6">
+
+    </div>
+
+
+
+    <!-- react cdn -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!-- react dom cdn -->
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- babel cdn -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- define type as a babel  -->
+    <script type="text/babel">
+
+        // -------------------root1--------------------------------
+        // 함수 컴포넌트
+        // 개념적으로 컴포넌트는 JavaScript 함수와 유사하다.
+        // “props”라고 하는 데이터를 임의로 넣어준 뒤에, 그 데이터가 화면에 어떻게 표시되는지를 알려주는 React 엘리먼트를 반환한다.
+        function Welcome(props) {
+            return <h1>Hello, {props.name}</h1>;
+        }
+        const user = {name: 'Tom', career: 'actor'}
+        ReactDOM.render(Welcome(user), document.getElementById('root1') );
+
+
+        // -------------------root2--------------------------------
+        // 클래스 컴포넌트
+        // JavaScript ES6 의 class 문법을 사용하여 컴포넌트를 정의할 수도 있다.
+        // React의 관점에서 볼 때 위 두 가지 유형의 컴포넌트는 동일하다.
+        class Greetings extends React.Component {
+            render() {
+                return <h1>Hello, {this.props.name}</h1>;
+            }
+        }
+        ReactDOM.render(<Greetings name="Ben" />, document.getElementById('root2') );
+
+
+        // -------------------root3--------------------------------
+        // 컴포넌트가 렌더링되는 과정
+        // 지금까지는 DOM 태그만을 사용해 React 엘리먼트를 나타냈다.
+        const eleOld = <div> <h1> This is old element </h1> </div>;
+        // React 엘리먼트는 사용자 정의 컴포넌트로도 나타낼 수 있다.
+        const eleNew =  <Greetings name="Sara" />;
+        // React가 사용자 정의 컴포넌트로 작성한 엘리먼트를 발견하면 해당 컴포넌트에 JSX 어트리뷰트와 하위 요소들을 단일 객체로 전달한다. 이 객체를 “props”라고 한다.
+        ReactDOM.render(eleNew, document.getElementById('root3') );
+        // 이 예시에서는 다음과 같은 일들이 일어납니다.
+        // 1. <Greetings name="Sara" /> 엘리먼트로 ReactDOM.render()를 호출한다.
+        // 2. React는 {name: 'Sara'}를 props로 두고 Greetings 컴포넌트를 호출한다.
+        // 3. Greetings 컴포넌트는 결과적으로 <h1>Hello, Sara</h1> 엘리먼트를 내놓는다.
+        // 4. React DOM은 <h1>Hello, Sara</h1> 엘리먼트와 일치하도록 DOM을 효율적으로 업데이트한다.
+        // 주의: React는 소문자로 시작하는 컴포넌트를 DOM 태그로 처리한다.  ex) <div> <input> <img>
+        // 따라서 컴포넌트는 대문자로 시작해야 한다.  ex) <Greetings> <MyCompo> <ProductList>
+
+        
+        // -------------------root4--------------------------------
+        // 컴포넌트 합성하기
+        // 컴포넌트는 자신의 출력에 다른 컴포넌트를 참조할 수 있다.
+        // React 앱에서는 버튼, 폼, 다이얼로그, 화면 등의 모든 것들이 흔히 컴포넌트로 표현된다.
+        // 예를 들어 SayHello를 여러 번 렌더링하는 App 컴포넌트를 만들 수 있다.
+        function SayHello(props) {
+            return <h1>Hello, {props.name}</h1>;
+        }
+
+        function App() {
+            return (
+                <div>
+                    <SayHello name="Leo" />
+                    <SayHello name="Bruce" />
+                    <SayHello name="Ethan" />
+                </div>
+            );
+        }
+
+        ReactDOM.render(
+            <App />,
+            document.getElementById('root4')
+        );
+
+
+        // -------------------root5--------------------------------
+        // 컴포넌트 추출하기
+        // 다음 Comment 컴포넌트는 author(객체), text(문자열), date(날짜)를 props로 받은 후 소셜 미디어 웹 사이트의 코멘트를 반환한다.
+        function Comment(props) {
+            return (
+                <div className="Comment">
+                    <div className="UserInfo">
+                        <img className="Avatar"
+                            src={props.author.avatarUrl}
+                            alt={props.author.name}
+                        />
+                        <div className="UserInfo-name">
+                            {props.author.name}
+                        </div>
+                    </div>
+                    <div className="Comment-text">
+                        {props.text}
+                    </div>
+                    <div className="Comment-date">
+                        {formatDate(props.date)}
+                    </div>
+                </div>
+            );
+        }
+
+        function formatDate(date) {
+            return date.toLocaleTimeString();
+        }
+
+        const user5 = {
+                author: {
+                        avatarUrl:'hello-world', 
+                        name: 'Sam' 
+                },
+                text: 'Hello World',
+                date: new Date()
+            };
+
+        ReactDOM.render(Comment(user5), document.getElementById('root5'))
+
+        // 위 Comment 컴포넌트는 구성 요소들이 모두 중첩 구조로 이루어져 있어서 변경하기 어렵다.
+        // 각 구성요소를 개별적으로 재사용하기도 힘들다.
+        // 이 컴포넌트에서 몇 가지 컴포넌트를 떼어내 보자.
+        // 먼저 Avatar를 추출해 보자.
+        // Avatar 는 자신이 Comment 내에서 렌더링 된다는 것을 알 필요가 없다. 
+        // 따라서 props의 이름을 author에서 더욱 일반화된 user로 변경했다.
+        // props의 이름은 사용될 context가 아닌 컴포넌트 자체의 관점에서 지어야 좋다.
+        function Avatar(props) {
+            return (
+                <img className="Avatar"
+                    src={props.user.avatarUrl}
+                    alt={props.user.name} />
+            );
+        }
+        // 이렇게 만든 Avatar 컴포넌트를 활용하여 Comment 컴포넌트를 다시 구성해 보자.
+        function Comment2(props) {
+            return (
+                <div className="Comment">
+                    <div className="UserInfo">
+                        <Avatar user={props.author} />
+                        <div className="UserInfo-name">
+                            {props.author.name}
+                        </div>
+                    </div>
+                    <div className="Comment-text">
+                        {props.text}
+                    </div>
+                    <div className="Comment-date">
+                        {formatDate(props.date)}
+                    </div>
+                </div>
+            );
+        }
+
+        // 다음으로 Avatar 옆에 사용자의 이름을 렌더링하는 UserInfo 컴포넌트를 추출해 보자.
+        function UserInfo(props) {
+            return (
+                <div className="UserInfo">
+                    <Avatar user={props.user} />
+                    <div className="UserInfo-name">
+                        {props.user.name}
+                    </div>
+                </div>
+            );
+        }
+
+        // UserInfo 컴포넌트를 활용하여 Comment 컴포넌트를 다시 구성해 보자.
+        function Comment3(props) {
+            return (
+                <div className="Comment">
+                    <UserInfo user={props.author} />
+                    <div className="Comment-text">
+                        {props.text}
+                    </div>
+                    <div className="Comment-date">
+                        {formatDate(props.date)}
+                    </div>
+                </div>
+            );
+        }
+
+        // -------------------root6--------------------------------
+        ReactDOM.render(Comment3(user5), document.getElementById('root6'));
+    
+        // Comment 컴포넌트가 아까보다 훨씬 간단해졌다.
+        // 처음에는 컴포넌트를 추출하는 작업이 지루해 보일 수 있다.
+        // 하지만 구현하려는 앱이 커지면 커질수록 재사용 가능한 컴포넌트를 만들어 놓는 일이 중요해진다.
+        
+
+        // -------------------root7--------------------------------
+        // 컴포넌트가 가지는 props 자체를 수정해서는 안 된다.
+        // 함수 컴포넌트든 클래스 컴포넌트든 모두 마찬가지다.
+        // 예를 들어 아래 함수를 보자.
+        function sum(a, b) {
+            return a + b;
+        }
+        // 위 함수는 입력받은 값 a와 b 자체는 바꾸려 하지 않는다.
+        // 그 값을 가공하여 그 결과값을 반환한다.
+        // 이처럼 입력 받은 값을 바꾸지 않는 함수를 순수 함수라고 한다.
+
+        // 반면에 아래와 같은 함수들은 입력 받은 값 자체를 수정하거나 변경하기 때문에 순수 함수가 아니다.
+        function withdraw(account, amount) {
+            account.total -= amount;
+        }
+
+        // React는 매우 유연하지만 한 가지 엄격한 규칙이 있다.
+        // 모든 React 컴포넌트는 자신의 props를 다룰 때 반드시 순수 함수처럼 동작해야 한다.
+
+        
+        </script>
+</body>
+</html>

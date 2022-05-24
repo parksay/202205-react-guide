@@ -26,6 +26,10 @@
     </div>
 
 
+    <div id="root5">
+        
+    </div>
+
     <!-- react cdn -->
     <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <!-- react dom cdn -->
@@ -122,9 +126,17 @@
         };
         // 이러한 객체를 리액트 객체, 리액트 엘리먼트라고 합니다.
         ReactDOM.render(
-            ele,
+            ele2,
             document.getElementById('root4')
         )
+
+        const ele4 = React.createElement(
+            'h1',
+            {className:'hello'},
+            'world'
+        )
+        ReactDOM.render(ele4, document.getElementById('root5'));
+
     </script>
 
 </body>
