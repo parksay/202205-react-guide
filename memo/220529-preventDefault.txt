@@ -1,0 +1,40 @@
+html 태그에서  onclick 이나 onsubmit 등 이벤트 속성들이 있다.
+이 안에 들어가는 명령문은 자바스크립트 함수처럼 작동한다.
+그 안에서 함수를 실행하거나, 변수를 만들거나, return 값도 설정할 수 있다.
+예를 들어보자.
+<html>
+    <a href="?hello=world" onclick="showFruit(); const color = 'red'; console.log(color); return false;"> click here </a>
+</html>
+<script>
+    function showFruit() {
+        alert('apple');
+    }
+</script>
+위와 같이 작성한 a 태그가 있다고 해 보자.
+onclick 안에 자바스크립트 명령문들이 들어 있다.
+a태그를 클릭하면 이 명령문들이 함수처럼 실행한다.
+일단 스크립트에서 showFruit라는 이름을 가지는 함수를 찾아서 실행한다.
+그리고 color라는 이름으로 변수를 만들고, 그 안에 red라는 문자열을 넣는다.
+콘솔창에 color라는 이름을 가진 변수를 출력한다.
+마지막으로 false를 반환한다.
+
+onclick에서 마지막에 있는 return false는 무슨 기능을 하는가?
+남아 있는 기능을 더 이상 수행하지 않고 작동을 멈춘다.
+그렇다면 남아 있는 기능이란 또 무엇인가?
+onclick 안에 내용은 어차피 끝이 나는데?
+여기서 말하는 '남아 있는 기능'은 a 태그가 자체적으로 가지고 있는 기능이다.
+즉, a 태그는 href 속성으로 주소를 옮긴다.
+onclick 속성에서 return false를 해 버리면 a 태그는 더 이상 주소를 옮기지 않는다.
+
+즉, onclick에서 return false는 preventDefault 함수와 같은 기능이다.
+아래 세 a 태그는 모두 같은 기능을 한다.
+셋 모두 주소를 옮겨 가지 않는다.
+<a href="?hello=world" onclick="showFruit(); return false;"> click here </a>
+<a href="?hello=world" onclick="showFruit(); event.preventDefault()"> click here </a>
+<a href="?hello=world" onclick="showFruit(event);"> click here </a>
+function showFruit(e) {
+    e.preventDefault();
+    alert('apple');
+}
+
+

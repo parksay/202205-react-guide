@@ -1,0 +1,114 @@
+자바스크립트에서도 클래스를 만들 수 있다.
+클래스 안에는 함수도 만들수 있다.
+그런데 클래스 안에 함수를 만들어 두고 실행할 때는 주의해야 할 점이 있다.
+this 를 참조하는 방법이다.
+
+예를 들어 아래처럼 사용할 때는 문제가 없다.
+클래스를 정의하고, 그 클래스의 인스턴스를 만들고, 그 인스턴스로 멤버 메소드를 실행한다.
+이렇게 사용하는 경우에는 this를 참조하는 데에 문제가 없다.
+    <button onclick="const f1 = new Fruit1(); f1.showFruit();">click here</button>
+    <script>
+        class Fruit1 {
+            constructor() {
+                this.apple = 'red';
+            }
+            showFruit() {
+                console.log('showFruit > this');
+                console.log(this);
+                alert(this.apple);
+            }
+        }
+    </script>
+
+문제는 아래처럼 쓸 경우다.
+클래스를 정의하고, 그 클래스의 인스턴스를 만드는 것까지는 똑같다.
+const f = new Fruit();
+하지만 함수를 부르는 방법이 다르다.
+인스턴스로부터 멤버 메소드를 바로 실해하지 않았다.
+대신 인스턴스의 멤버 메소드를 참조하여 변수처럼 사용했다.
+runFunc(f.showFruit);
+그리고 그 함수를 변수처럼 받아서 실행했다.
+function runFunc(s) {
+    s();
+}
+이렇게 하면 실행하는 주체가 달라진다.
+이전에는 클래스의 인스턴스가 함수를 실행했지만,
+f.showFruit();
+그 함수를 참조하여 주고받으면서 인스턴스의 존재는 사라지고 함수만 남았다.
+s();
+이렇게 되면 실행되는 함수 안에서는 더 이상 this를 사용할 수 없다.
+this는 undefined가 된다.
+    <button onclick="const f2 = new Fruit2(); runFunc2(f2.showFruit);">click here2</button>
+    <script>
+        class Fruit2 {
+            constructor() {
+                this.apple = 'red';
+            }
+            showFruit() {
+                console.log('showFruit > this');
+                console.log(this);
+                alert(this.apple);
+            }
+        }
+
+        function runFunc2(f) {
+            f();
+        }
+    </script>
+
+
+이러한 문제를 해결하는 방법은 두 가지다.
+첫째는, this 를 bind 해주는 방법이다.
+아래에서 constructor를 보자.
+멤버 메소드 showFruit를 참조하여 this를 bind해 준다.
+이렇게 되면 인스턴스를 통해서 바로 멤버 메소드를 실행하지 않고,
+함수를 참조만 하여 주고받는 경우에도 this를 사용할 수 있게 된다.
+    <button onclick="const f3 = new Fruit3(); runFunc3(f3.showFruit);">click here3</button>
+    <script>
+        class Fruit3 {
+            constructor() {
+                this.apple = 'red';
+                this.showFruit = this.showFruit.bind(this);
+            }
+            showFruit() {
+                console.log('showFruit > this');
+                console.log(this);
+                // alert(this.apple);
+            }
+        }
+
+        function runFunc3(f) {
+            f();
+        }
+    </script>
+
+두 번째 방법은 함수를 선언하는 방법을 바꾸는 법이다.
+기존에는 클래스 안에 멤버 메소드로 선언했다.
+class Fruit {
+    testFunc() {
+        //do somethig
+    }
+}
+이렇게 선언하지 않고, 함수를 클래스의 멤버 변수 안에 넣어두는 방법이다.
+함수를 변수 안에 넣어두고, 그 변수를 주고 받는다.
+이렇게 되면 결국 실행할 때는 그 변수가 속해 있는 클래스 안에서 실행되게 되므로,
+함수를 실행하는 주체가 항상 클래스 자체가 된다.
+    <button onclick="const f4 = new Fruit4(); runFunc4(f4.showFruit);">click here4</button>
+    <script>
+        class Fruit4 {
+
+            showFruit = () => {
+                console.log('showFruit > this');
+                console.log(this);
+                alert(this.apple);
+            }
+
+            constructor() {
+                this.apple = 'red';
+            }
+        }
+
+        function runFunc4(f) {
+            f();
+        }
+    </script>
