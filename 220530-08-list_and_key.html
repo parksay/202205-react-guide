@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <div id="root1">
+    </div>
+    <div id="border1"></div>
+
+
+
+    <!-- react cdn -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!-- react dom cdn -->
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- babel cdn -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- define type as a babel  -->
+    <script type="text/babel">
+        class MakeBorder extends React.Component {
+            render() {
+                return <p>--------------------------------root{this.props.num}----------------------------</p>;
+            }
+        }
+
+        // JavaScript 에서 리스트를 다루는 map 함수
+        // 리액트는 리스트를 바탕으로 리액트 엘리먼트들을 만들 때 JavaScript의 map() 함수를 활용한다.
+        // 따라서 먼저 JavaScript에서 map() 함수를 쓰는 법을 보자.
+        const numBefore = [1,2,3,4,5,6];
+        const numAfter = numBefore.map((item)=>{ return item * 2});
+        console.log(numAfter);
+        // Array.prototype.map(function(item, index, arr){ return obj; }) 
+        // 배열 객체에 map() 함수를 실행하고, 그 안에 콜백 함수를 파라미터로 넣는다.
+        // 그러면 배열 객체로부터 요소들을 하나씩 꺼내어서 콜백 함수를 실행한다.
+        // 콜백 함수는 최소 한 개부터 최대 세 개의 파라미터를 받는다.
+        // 콜백 함수가 받는 파라미터 세 개는 아래와 같은 순서다.
+        // (배열 객체로부터 꺼내온 요소 하나), (그 요소의 인덱스), (현재 함수를 실행하고 있는 배열 객체)
+        // map 함수는 배열을 하나 반환한다.
+        // 그 배열 안에 있는 요소들은 콜백 함수가 반환헀던 값들이 순서대로 들어 있다.
+        ReactDOM.render( <MakeBorder num="1" />, document.getElementById('border1') );
+
+
+    </script>
+</body>
+</html>
