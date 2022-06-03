@@ -1,0 +1,20 @@
+background: afc0cf
+
+header text: 191919
+
+chat my-background: f9e54d
+chat user-background: fefefe
+chat text: 191919
+chat time: 555c62
+chat user-id: 555c62i
+
+
+user-image border: 89a7c7
+user-image background: 9cbde3
+user-image character: c8daee
+
+
+
+input-tab background: fefefe
+input-tab text input: f8f8f8
+input-tab button: 90949b
