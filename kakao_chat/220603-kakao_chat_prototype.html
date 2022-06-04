@@ -7,8 +7,186 @@
     <title>Document</title>
 </head>
 <body>
+    <style>
+
+        :root { 
+            font-size: 16px;
+            --chat-container-margin: 0.5rem 0.8rem;
+            --profile-img-radius: 1.5rem;
+            --chat-padding: 0.6rem 0.6rem;
+            --chat-contents-margin: 0rem 0.6rem;
+            --chat-box-basis: 3rem;
+            --chat-time-margin: 0rem 0.3rem;
+            --chat-info-color: #555c62;
+            --chat-radius: 15px;
+            --chat-font: 1.2rem "Fira Sans", sans-serif;
+        }
+
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        .container {
+            width: 400px;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+            background-color: #afc0cf;
+
+            /* remove later */
+            border: 1px solid red;
+
+        }
+
+        .my-chat-container {
+            align-self: flex-end;
+        }
+
+
+        .your-chat-container {
+            align-self: flex-start;
+
+            display: flex;
+            align-items: center;
+            margin: var(--chat-container-margin);
+        }
+
+        .your-profile-img {
+            width: 4rem;
+            height: auto;
+            border-radius: var(--profile-img-radius);
+        }
+        
+        .chat-contents {
+            margin: var(--chat-contents-margin);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .your-chat-name {
+            color: var(--chat-info-color);
+            margin: 0;
+            padding: 0.3rem 0rem;
+        }
+
+        .your-chat-box {
+            display: flex;
+            flex-basis: var(--chat-box-basis);
+        }
+        
+        .your-chat-text {
+            text-align: left;
+            font: var(--chat-font);
+            border-radius: var(--chat-radius);
+            padding: var(--chat-padding);
+            background-color: #fefefe;
+        }
+
+        .your-chat-time {
+            color: var(--chat-info-color);
+            align-self: flex-end;
+            margin: var(--chat-time-margin);
+        }
+
+
+        
+        .my-chat {
+            text-align: right;
+            font: var(--chat-font);
+            border-radius: var(--chat-radius);
+
+            align-self: flex-end;
+            background-color: #f9e54d;
+            
+        }
+
+        
+    </style>
     
-    
+    <div class="container">
+        hello world
+        <section>
+            <span class="my-chat">
+                계단에서 호출할게요!
+            </span>
+        </section>
+        <div>
+            <span class="your-chat">
+                굿
+            </span>
+        </div>
+        <div>
+            <span class="your-chat">
+                밥 먹자요
+            </span>
+        </div>
+        <div>
+            <span class="my-chat">
+                지금여?
+            </span>
+        </div>
+        <div>
+            <span class="my-chat">
+                아 뭐야 퇴근 시간이잖아?
+            </span>
+        </div>
+
+
+        <div class="your-chat-container">
+            <span class="profile-img-container">
+                <img class="your-profile-img" src="img/default_profile.PNG" alt="default" >
+            </span>
+            <span class="chat-contents">
+                <p class="your-chat-name">test friend</p>
+                <div class="your-chat-box">
+                    <span class="your-chat-text">
+                        알겠어요
+                    </span>
+                    <span class="your-chat-time">
+                        오후 5:18
+                    </span>
+                </div>
+            </span>
+        </div>
+
+        <div class="my-chat-container">
+            <span class="profile-img-container">
+                <img class="your-profile-img" src="img/default_profile.PNG" alt="default" >
+            </span>
+            <span class="chat-contents">
+                <p class="your-chat-name">test friend</p>
+                <div class="your-chat-box">
+                    <span class="your-chat-text">
+                        알겠어요
+                    </span>
+                    <span class="your-chat-time">
+                        오후 5:18
+                    </span>
+                </div>
+            </span>
+        </div>
+
+        
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
     <div id="root1">
     </div>
     <div id="border1"></div>
