@@ -6,7 +6,7 @@ chat my-background: f9e54d
 chat user-background: fefefe
 chat text: 191919
 chat time: 555c62
-chat user-id: 555c62i
+chat user-id: 555c62
 
 
 user-image border: 89a7c7
