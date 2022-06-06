@@ -145,7 +145,7 @@
         
 
         /* 상대방 대화 텍스트 */
-        .your-chat-text {
+        .your-chat-msg {
             text-align: left;
             font: var(--chat-font);
             border-radius: var(--chat-radius);
@@ -163,7 +163,7 @@
 
 
         /* 내 대화 텍스트 */
-        .my-chat-text {
+        .my-chat-msg {
             text-align: right;
             font: var(--chat-font);
             border-radius: var(--chat-radius);
@@ -194,11 +194,12 @@
         }
         
         /* 푸터 텍스트 입력창 */
-        footer input {
+        footer textarea {
             background-color: transparent;
             border: none;
             width: 70%;
-            height: 1.5rem;
+            height: 1rem;
+            resize: none;   /* textarea 우측 하단 사이즈 조절 버튼 삭제 */
         }
 
         /* 푸터 사진 추가 + 이모티콘 + 해시태그 아이콘 이미지 */
@@ -215,7 +216,7 @@
 
         <header>
             <div class="device-info">
-                <span>11:41</span>
+                <span name="phoneTime">11:41</span>
                 <span>
                     <span><img src="img/signal.png" alt="signal"></span>
                     <span><img src="img/wifi.png" alt="wifi"></span>
@@ -224,7 +225,7 @@
             </div>
             <div class="chat-info">
                 <span>&lt; 38</span>
-                <span>test friend</span>
+                <span name="yourId">test friend</span>
                 <span>
                     <span><img style="position: relative; top:0.25rem"src="img/search.png" alt="search"></span>
                     <span><img src="img/hamburger.png" alt="hamburger"></span>
@@ -239,12 +240,12 @@
                     <img class="your-profile-img" src="img/default_profile.PNG" alt="default" >
                 </span>
                 <span class="chat-contents-wrapper">
-                    <p class="your-chat-name">test friend</p>
+                    <p class="your-chat-name" name="yourId">test friend</p>
                     <div class="chat-box">
-                        <span class="your-chat-text">
+                        <span class="your-chat-msg">
                             알겠어요
                         </span>
-                        <span class="chat-time">
+                        <span class="chat-time" name="chatTime">
                             오후 5:18
                         </span>
                     </div>
@@ -257,10 +258,10 @@
             <div class="my-chat-container">
                 <span class="chat-contents-wrapper">
                     <div class="chat-box">
-                        <span class="chat-time">
+                        <span class="chat-time" name="chatTime">
                             오후 5:18
                         </span>
-                        <span class="my-chat-text">
+                        <span class="my-chat-msg">
                             계단에서 호출할게요!
                         </span>
                     </div>
@@ -273,7 +274,7 @@
             <div class="footer-container">
                 <span><img src="img/plus.png" alt="plus" ></span>
                 <span class="footer-contents-wrapper">
-                    <span><input type="text" name="" id=""></span>
+                    <span><textarea type="text" name="" id=""></textarea></span>
                     <span><img src="img/emoji.png" alt="emoji" ></span>
                     <span><img src="img/hashtag.png" alt="hashtag" ></span>
                 </span>
@@ -310,6 +311,54 @@
 
     <!-- define type as a babel  -->
     <script type="text/babel">
+
+        // set freind's id
+        const yourId = 'hello';
+        const idEleList = document.querySelectorAll('[name="yourId"]');
+        idEleList.forEach(function(item, index){
+            item.innerText = yourId;
+        });
+
+        // set the footer's position by setting the chat conatiner's height
+        const headerHeight = document.querySelector('header').offsetHeight;
+        const footerHeight = document.querySelector('footer').offsetHeight;
+        const containerHeight = document.querySelector('.container').offsetHeight;
+        document.querySelector('.chat-container').style.height = parseInt(containerHeight - (headerHeight + footerHeight)) + 'px';
+
+        // time formatter
+        function timeFormatter(param, type) {
+            const d = new Date(param);        //파라미터로 전달 받은 날짜를 가지고 새로운 Date 자료형 변수를 만든다.
+            const h = d.getHours();     //시를 받아온다.
+            const m = d.getMinutes().length < 2 ? '0' + d.getMinutes() : d.getMinutes();   //분을 받아온다
+            const n = h < 12 ? '오전' : '오후';      //구분을 받아온다.
+            let result = '';
+            if(type=='1') {
+                result = `${n} ${h}:${m}`;    //JavaScript 새로운 문법 => Template Literals
+            } else if (type=='2'){
+                result =  `${h}:${m}`;  
+            }
+            return result;   
+        }
+
+        // set the chat time
+        const chatTimeEleList = document.querySelectorAll('[name="chatTime"]');
+        chatTimeEleList.forEach(function(item, index) {
+            const now = new Date();
+            const time = timeFormatter(now, 1);
+            item.innerText = time;
+        });
+        
+        // set the phone time
+        const phoneTimeEleList = document.querySelectorAll('[name="phoneTime"]');
+        phoneTimeEleList.forEach(function(item, index) {
+            const now = new Date();
+            const time = timeFormatter(now, 2);
+            item.innerText = time;
+        });
+
+
+        
+        // React start
         class MakeBorder extends React.Component {
             render() {
                 return <p>--------------------------------root{this.props.num}----------------------------</p>;
