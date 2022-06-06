@@ -65,6 +65,7 @@
         }
 
         /* 스마트폰 정보 아이콘 + 카톡방 검색 and 햄버거 메뉴 아이콘 */
+        /* TODO: 높이 중앙 정렬 */
         header img {
             width: 1.5rem;
             height: auto;
@@ -82,6 +83,12 @@
             margin: 0rem 1rem;
             align-items: center;
         }
+
+        /* 상단 카톡방 정보창 아이콘 이미지 랩퍼 */
+        .chat-info > span > span {
+            margin: 0rem 0.4rem;
+        }
+
 
         /* 카톡방 대화창 전체 */
         .chat-container {
@@ -169,7 +176,38 @@
 
         /* TODO : 푸터 하단 고정 / header랑 container 높이를 %로 고정하면 되긴 하는데 다이나믹하게 할 수 있는 방법 없나 */
         footer {
+            margin: 0.5rem 0rem 0rem 0rem;
+
         }
+
+        /* 푸터 최상위 컨테이너 */
+        .footer-container {
+            padding: 0.5rem 0rem;
+            background-color: #fefefe;
+        }
+
+        /* 푸터 텍스트 입력창 + 이모티콘 and 해시태그 아이콘 랩퍼 */
+        .footer-contents-wrapper {
+            background-color: #f8f8f8;
+            border-radius: 1rem;
+            padding: 0.2rem 0.5rem;
+        }
+        
+        /* 푸터 텍스트 입력창 */
+        footer input {
+            background-color: transparent;
+            border: none;
+            width: 70%;
+            height: 1.5rem;
+        }
+
+        /* 푸터 사진 추가 + 이모티콘 + 해시태그 아이콘 이미지 */
+        footer img {
+            width: 1rem;
+            height: auto;
+            margin: 0rem 0.3rem;
+        }
+
         
     </style>
     
@@ -187,8 +225,8 @@
             <div class="chat-info">
                 <span>&lt; 38</span>
                 <span>test friend</span>
-                <span style="align-items: center;">
-                    <span><img src="img/search.png" alt="search"></span>
+                <span>
+                    <span><img style="position: relative; top:0.25rem"src="img/search.png" alt="search"></span>
                     <span><img src="img/hamburger.png" alt="hamburger"></span>
                 </span>
             </div>
@@ -230,14 +268,14 @@
             </div>
 
         </section>
-
+        
         <footer>
-            <div>
-                <span>+</span>
-                <span>
+            <div class="footer-container">
+                <span><img src="img/plus.png" alt="plus" ></span>
+                <span class="footer-contents-wrapper">
                     <span><input type="text" name="" id=""></span>
-                    <span></span>
-                    <span></span>
+                    <span><img src="img/emoji.png" alt="emoji" ></span>
+                    <span><img src="img/hashtag.png" alt="hashtag" ></span>
                 </span>
             </div>
         </footer>
