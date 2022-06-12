@@ -2,19 +2,33 @@ background: afc0cf
 
 header text: 191919
 
+
+// chat contents
 chat my-background: f9e54d
 chat user-background: fefefe
 chat text: 191919
 chat time: 555c62
 chat user-id: 555c62
+send-button-background: f9e54d
+send-button-arrow: 191919
 
-
+// profile image
 user-image border: 89a7c7
 user-image background: 9cbde3
 user-image character: c8daee
 
 
-
+// footer
 input-tab background: fefefe
 input-tab text input: f8f8f8
 input-tab button: 90949b
+
+
+
+// keyboard
+background: d5d7dd
+text: 000000
+normal-key: fefefe
+system-key: b4b8c0
+press-key: b4b8c0
+press-system-key: (background:fefefe / color: 000000)
