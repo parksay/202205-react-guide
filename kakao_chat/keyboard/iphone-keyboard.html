@@ -7,6 +7,7 @@
   <style type="text/css">
     :root {
       font-size: 20px;
+      font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     }
 
     #keyboard {
@@ -56,7 +57,7 @@
 <body>
   <div class="container">
     <div id="keyboard" class="is-korean">
-      <div class="row">
+      <div class="row" id="row1">
         <div id="KeyQ" class="key">ㅂ</div>
         <div id="KeyW" class="key">ㅈ</div>
         <div id="KeyE" class="key">ㄷ</div>
@@ -68,7 +69,7 @@
         <div id="KeyO" class="key">ㅐ</div>
         <div id="KeyP" class="key">ㅔ</div>
       </div>
-      <div class="row">
+      <div class="row" id="row2">
         <div id="KeyA" class="key">ㅁ</div>
         <div id="KeyS" class="key">ㄴ</div>
         <div id="KeyD" class="key">ㅇ</div>
@@ -79,18 +80,22 @@
         <div id="KeyK" class="key">ㅏ</div>
         <div id="KeyL" class="key">ㅣ</div>
       </div>
-      <div class="row">
+      <div class="row" id="row3">
         <div class="key systemkey" style="width: 3.5rem">⌂</div>
-        <div id="KeyZ" class="key">ㅋ</div>
+        <div id="KeyZ-wrapper" style="display: inline;">
+            <div id="KeyZ" class="key">ㅋ</div>
+        </div>
         <div id="KeyX" class="key">ㅌ</div>
         <div id="KeyC" class="key">ㅊ</div>
         <div id="KeyV" class="key">ㅍ</div>
         <div id="KeyB" class="key">ㅠ</div>
         <div id="KeyN" class="key">ㅜ</div>
-        <div id="KeyM" class="key">ㅡ</div>
+        <div id="KeyM-wrapper" style="display: inline;">
+            <div id="KeyM" class="key">ㅡ</div>
+        </div>
         <div class="key systemkey" style="width: 3.5rem">⌫</div>
       </div>
-      <div class="row">
+      <div class="row" id="row4">
         <div class="key systemkey" style="width: 3.5rem">123</div>
         <div class="key systemkey" style="width: 3rem">☺️</div>
         <div id="Space" class="key" style="width: 15rem; font-weight: 400;">간격</div>
@@ -109,11 +114,19 @@
   TODO: 
   // CSS 만지기 
   / 특수문자 키보드 배열 이슈
-    - 특수문자 배열일 때는 row3에서 키 갯수가 다름...
-    - row별로 클래스명 따로 지정하기 + 특수문자 배열일 때는 'ㅋ' 키를 row2로 옮기고, 'ㅡ' 키를 display:none 으로 바꾸기
-    - iPhone 키보드 기본 font-family 찾기
+    **- 특수문자 배열일 때는 row3에서 키 갯수가 다름...
+        => 이벤트로 변경 완료
+    **- row별로 클래스명 따로 지정하기 + 특수문자 배열일 때는 'ㅋ' 키를 row2로 옮기고, 'ㅡ' 키를 display:none; 으로 바꾸기  
+        => 변환될 때마다 자리도 바뀌고 뭔가 레이아웃도 조금씩 바뀌는 것 같아서 wrapper div를 썼음. 
+        wrapper div 는 display: block 으로 하면 줄 바뀌니까 display:inline;
+        class 바꾸면 공통 css가 무너져서 id를 다르게 지정해 줌.
+    - iPhone 키보드 기본 font-family 찾기 
+        => "Helvetica Neue UltraLight" 이거라는데 비슷한 거 같긴 한데 백스페이스 문자가 조금 다름 ㅠㅠ
   / 키보드 누름 이벤트 마저 하기 
     - 시스템키 + 특수문자키들은 하나하나 연결해 줘야 할 듯... keyDown 함수
+    - 특수문자 변경할 때 키보드 배열이 바뀌도록 해 놓았음. 
+      이게 특수문자 변환키로 토글했다가 다시 특수문자 토글키를 눌러야만 원상복구 되고, 특수문자에서 한영키로 바로 토글하면 완상복구되지가 않음.
+      특수문자 변환 시에 키 레이아웃 바뀌는 건 함수로 따로 빼서 한영 변환 시에도 적용될 수 있도록 하기.
   / 한영 변환 이슈
     - 한글을 입력할 때는 입력 중인 글자 아래에 밑줄 커서가 깜빡인다. 
     - 이 상태에서는 어떤 키들을 누르면 두 번 입력된다. ex) 화살표, 오른쪽 쉬프트, 백슬래쉬 등...
@@ -213,10 +226,17 @@
             changeTo='Korean';
             kb.classList.remove('is-symbols');
             kb.classList.add('is-korean');
+            // 키 배열 바꾸기
+            document.querySelector('div#KeyZ-wrapper').appendChild(document.querySelector('div#KeyZ'));
+            document.querySelector('div#KeyM').style.display="inline-block";
           } else {
             kb.classList.add('is-symbols');
             kb.classList.remove('is-korean');
             changeTo='Symbols';
+            // 키 배열 바꾸기
+            document.querySelector('div#row2').appendChild(document.querySelector('div#KeyZ'));
+            document.querySelector('div#KeyM').style.display="none";
+
           }
         }
         
