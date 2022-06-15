@@ -113,7 +113,7 @@
 
   TODO: 
   // CSS 만지기 
-  / 특수문자 키보드 배열 이슈
+  **/ 특수문자 키보드 배열 이슈
     **- 특수문자 배열일 때는 row3에서 키 갯수가 다름...
         => 이벤트로 변경 완료
     **- row별로 클래스명 따로 지정하기 + 특수문자 배열일 때는 'ㅋ' 키를 row2로 옮기고, 'ㅡ' 키를 display:none; 으로 바꾸기  
@@ -124,10 +124,10 @@
         => "Helvetica Neue UltraLight" 이거라는데 비슷한 거 같긴 한데 백스페이스 문자가 조금 다름 ㅠㅠ
   / 키보드 누름 이벤트 마저 하기 
     - 시스템키 + 특수문자키들은 하나하나 연결해 줘야 할 듯... keyDown 함수
-    - 특수문자 변경할 때 키보드 배열이 바뀌도록 해 놓았음. 
+    ** - 특수문자 변경할 때 키보드 배열이 바뀌도록 해 놓았음. 
       이게 특수문자 변환키로 토글했다가 다시 특수문자 토글키를 눌러야만 원상복구 되고, 특수문자에서 한영키로 바로 토글하면 완상복구되지가 않음.
       특수문자 변환 시에 키 레이아웃 바뀌는 건 함수로 따로 빼서 한영 변환 시에도 적용될 수 있도록 하기.
-  / 한영 변환 이슈
+  **/ 한영 변환 이슈
     - 한글을 입력할 때는 입력 중인 글자 아래에 밑줄 커서가 깜빡인다. 
     - 이 상태에서는 어떤 키들을 누르면 두 번 입력된다. ex) 화살표, 오른쪽 쉬프트, 백슬래쉬 등...
     - 현재 그 글자를 편집 중인지, 글자 편집이 끝나고 다음 글자로 넘어가는 건지 확인해야 해서 시스템적으로 그렇게 돼 있다고 한다.
@@ -139,25 +139,27 @@
 
     document.addEventListener('keydown', function (e) {
       console.log(e.code);
-      keyDown(e.code);
-      changeKeyboard(e.code);
+      effectKeyDown(e.code);  // 키 누르면 css 변경
+      changeKeyboard(e.code);   // 문자나 레이아웃 변경
 
     });
 
     document.addEventListener('keyup', function (e) {
+      effectKeyUp(e.code);  // 키 떼면 css 변경
 
-      keyUp(e.code)
     });
 
-
-    function keyDown(code) {
+    // 키 누르면 css 변경
+    function effectKeyDown(code) {
       const targetKey = document.querySelector('div#' + code);
       if (targetKey) {
         targetKey.classList.add('keyPress');
       }
     }
 
-    function keyUp(code) {
+
+    // 키 떼면 css 변경
+    function effectKeyUp(code) {
       const targetKey = document.querySelector('div#' + code);
       if (targetKey && targetKey.classList.contains('keyPress')) {
         targetKey.classList.remove('keyPress');
@@ -165,6 +167,7 @@
     }
 
 
+    // 문자나 레이아웃 변경
     function changeKeyboard(code) {
       // 한영 변환 키의 e.code 값
       const toggleKorean = "ShiftRight";
@@ -174,6 +177,8 @@
         // 한영 변환이나 특수문자 변환이 아니면 그대로 끝내기
         return;
       }
+
+      // 키보드 변환했을 때 각 키별로 입력값 지정
       const keyList = [ 
                 {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1'},
                 {code: 'KeyW', Korean: 'ㅈ', English: 'w', Symbols: '2'},
@@ -203,14 +208,18 @@
                 {code: 'KeyM', Korean: 'ㅡ', English: 'm', Symbols: ''}
               ];
               
-        // 키보드 요소
+        // 키보드 요소 접근
         const kb = document.querySelector('div#keyboard');
-        // 키보드를 무엇으로 바꿀지
+        // 키보드 입력값을 무엇으로 바꿀지
         let changeTo ='';
 
         // 한영 변환
         if(code == toggleKorean) {
-          kb.classList.remove('is-symbols');
+          // 특수문자였다면 배열을 일반문자 배열로 바꾸기
+          if(kb.classList.contains('is-symbols')) { 
+            toggleSymbolsLayout(kb);
+            kb.classList.remove('is-symbols');
+          }
           if(kb.classList.contains('is-korean')) {
             changeTo='English';
             kb.classList.remove('is-korean');
@@ -222,28 +231,39 @@
 
         // 특수문자 변환
         if(code == toggleSymbols) {
+          // 토글 클래스를 만지기 전에 일단 레이아웃부터 일반문자 배열로 바꿔 놓기.
+          toggleSymbolsLayout(kb);  
           if(kb.classList.contains('is-symbols')) {
-            changeTo='Korean';
             kb.classList.remove('is-symbols');
             kb.classList.add('is-korean');
-            // 키 배열 바꾸기
-            document.querySelector('div#KeyZ-wrapper').appendChild(document.querySelector('div#KeyZ'));
-            document.querySelector('div#KeyM').style.display="inline-block";
+            changeTo='Korean';
           } else {
             kb.classList.add('is-symbols');
             kb.classList.remove('is-korean');
             changeTo='Symbols';
-            // 키 배열 바꾸기
-            document.querySelector('div#row2').appendChild(document.querySelector('div#KeyZ'));
-            document.querySelector('div#KeyM').style.display="none";
-
           }
         }
         
+        // 각 키별로 입력값 바꾸기
         keyList.forEach(function(ele, index) {
           document.querySelector('#'+ele.code).innerText = ele[changeTo];
         });
-    }
+
+      }
+
+      // 특수문자 배열 <=> 일반문자 배열 / 키보드 레이아웃 토글
+      function toggleSymbolsLayout(kb) {
+        if(kb.classList.contains('is-symbols')) {
+          // 키 배열 바꾸기
+          document.querySelector('div#KeyZ-wrapper').appendChild(document.querySelector('div#KeyZ'));
+          document.querySelector('div#KeyM').style.display="inline-block";
+        } else {
+          // 키 배열 바꾸기
+          document.querySelector('div#row2').appendChild(document.querySelector('div#KeyZ'));
+          document.querySelector('div#KeyM').style.display="none";
+        }
+
+      }
   </script>
 </body>
 
