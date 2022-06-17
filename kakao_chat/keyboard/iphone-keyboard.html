@@ -81,7 +81,7 @@
         <div id="KeyL" class="key">ㅣ</div>
       </div>
       <div class="row" id="row3">
-        <div class="key systemkey" style="width: 3.5rem">⌂</div>
+        <div id="ShiftLeft" class="key systemkey" style="width: 3.5rem">⌂</div>
         <div id="KeyZ-wrapper" style="display: inline;">
             <div id="KeyZ" class="key">ㅋ</div>
         </div>
@@ -93,7 +93,7 @@
         <div id="KeyM-wrapper" style="display: inline;">
             <div id="KeyM" class="key">ㅡ</div>
         </div>
-        <div class="key systemkey" style="width: 3.5rem">⌫</div>
+        <div id="Backspace" class="key systemkey" style="width: 3.5rem">⌫</div>
       </div>
       <div class="row" id="row4">
         <div class="key systemkey" style="width: 3.5rem">123</div>
@@ -138,15 +138,17 @@
   <script>
 
     document.addEventListener('keydown', function (e) {
-      console.log(e.code);
+      console.log(e);
       effectKeyDown(e.code);  // 키 누르면 css 변경
       changeKeyboard(e.code);   // 문자나 레이아웃 변경
-
+      effectSystemKeyDown(e);  // 시스템키들 개별 이벤트
+      effectShiftKeydown(e.code); // 한글 쌍자음 이벤트 - shift 누를 때
     });
 
     document.addEventListener('keyup', function (e) {
       effectKeyUp(e.code);  // 키 떼면 css 변경
-
+      effectSystemKeyUp(e); // 시스템키들 개별 이벤트
+      effectShiftKeyup(e.code) // 한글 쌍자음 이벤트 - shift 뗄 때
     });
 
     // 키 누르면 css 변경
@@ -263,6 +265,64 @@
           document.querySelector('div#KeyM').style.display="none";
         }
 
+      }
+
+      // 시스템키 누를 때 css 효과
+      function effectSystemKeyDown(e) {
+        if(e.key == '?') {    // 물음표
+          document.querySelector('div#KeyV').classList.add('keyPress');
+        } else if(e.key == '.') { // 쩜쩜
+          document.querySelector('div#KeyX').classList.add('keyPress');
+        } else if(e.code == 'Backspace') {  // 백스페이스
+          document.querySelector('div#Backspace').classList.add('systemkeyPress');
+        } else if(e.code == 'ShiftLeft') {  // 쉬프트 왼쪽
+          if(document.querySelector('div#keyboard').classList.contains('is-symbols')) return; // 특수문자일 때는 쉬프트 안 쓰기... 물음표가 이상함
+          document.querySelector('div#ShiftLeft').classList.add('systemkeyPress');
+          setTimeout(function(){ document.querySelector('div#ShiftLeft').classList.remove('systemkeyPress');}, 100);
+        }
+      }
+
+      // 시스템키 뗄 때 css 효과
+      function effectSystemKeyUp(e) {
+        if(e.key == '?') {    // 물음표
+          document.querySelector('div#KeyV').classList.remove('keyPress');
+        } else if(e.key == '.') { // 쩜쩜
+          document.querySelector('div#KeyX').classList.remove('keyPress');
+        } else if(e.code == 'Backspace') {  // 백스페이스
+          document.querySelector('div#Backspace').classList.remove('systemkeyPress');
+        } else if(e.code == 'ShiftLeft') {  // 쉬프트 왼쪽
+          if(document.querySelector('div#keyboard').classList.contains('is-symbols')) return; // 특수문자일 때는 쉬프트 안 쓰기... 물음표가 이상함
+          document.querySelector('div#ShiftLeft').classList.add('systemkeyPress');
+          setTimeout(function(){ document.querySelector('div#ShiftLeft').classList.remove('systemkeyPress');}, 100);
+        }
+      }
+
+      // 한글 쌍자음 효과 - shift key 누를 때
+      function effectShiftKeydown(code) {
+        const kb = document.querySelector('div#keyboard');
+        if(kb.classList.contains('is-korean') && code == 'ShiftLeft') {
+          document.querySelector('div#KeyQ').innerText = 'ㅃ';
+          document.querySelector('div#KeyW').innerText = 'ㅉ';
+          document.querySelector('div#KeyE').innerText = 'ㄸ';
+          document.querySelector('div#KeyR').innerText = 'ㄲ';
+          document.querySelector('div#KeyT').innerText = 'ㅆ';
+          document.querySelector('div#KeyO').innerText = 'ㅒ';
+          document.querySelector('div#KeyP').innerText = 'ㅖ';
+        }
+      }
+
+      // 한글 쌍자음 효과 - shift key 뗄 때
+      function effectShiftKeyup(code) {
+        const kb = document.querySelector('div#keyboard');
+        if(kb.classList.contains('is-korean') && code == 'ShiftLeft') {
+          document.querySelector('div#KeyQ').innerText = 'ㅂ';
+          document.querySelector('div#KeyW').innerText = 'ㅈ';
+          document.querySelector('div#KeyE').innerText = 'ㄷ';
+          document.querySelector('div#KeyR').innerText = 'ㄱ';
+          document.querySelector('div#KeyT').innerText = 'ㅅ';
+          document.querySelector('div#KeyO').innerText = 'ㅐ';
+          document.querySelector('div#KeyP').innerText = 'ㅔ';
+        }
       }
   </script>
 </body>
