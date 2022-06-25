@@ -7,7 +7,9 @@
     <title>Document</title>
 </head>
 <body>
+
     <style>
+        /* 카카오 채팅창 css */
 
         :root { 
             font-size: 16px;
@@ -175,7 +177,7 @@
         }
 
         /* TODO : 푸터 하단 고정 / header랑 container 높이를 %로 고정하면 되긴 하는데 다이나믹하게 할 수 있는 방법 없나 */
-        footer {
+        .footer {
             margin: 0.5rem 0rem 0rem 0rem;
 
         }
@@ -194,22 +196,80 @@
         }
         
         /* 푸터 텍스트 입력창 */
-        footer textarea {
+        .footer textarea {
             background-color: transparent;
             border: none;
             width: 70%;
             height: 1rem;
+            overflow-y: hidden; /* 텍스트가 칸을 가득 채워도 옆에 스크롤바 생기지 않도록 만들기 */
             resize: none;   /* textarea 우측 하단 사이즈 조절 버튼 삭제 */
         }
 
         /* 푸터 사진 추가 + 이모티콘 + 해시태그 아이콘 이미지 */
-        footer img {
+        .footer img {
             width: 1rem;
             height: auto;
             margin: 0rem 0.3rem;
         }
 
         
+    </style>
+
+    <style type="text/css">
+        /* 키보드 css */
+
+        #keyboard {
+            border-radius: 1px;
+            background-color: #d5d7dd;
+            padding: 5px 2px;
+            height: 12rem;
+            font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-content: center;
+            margin: 0rem 0.2rem;
+        }
+
+        #row2 {
+            margin: 0rem 1.5rem 0rem 1.5rem;
+        }
+
+        .key {
+            background-color: #fefefe;
+            -webkit-box-shadow: rgb(106, 106, 106) 0px 1px 1px 0px;
+            height: 2.6rem;
+            line-height: 2.8rem;
+            font-size: 1.2rem;
+            border-radius: 7px;
+            width: 2.2rem;
+            text-align: center;
+            font-family: Helvetica;
+            font-weight: 540;
+            color: #000000;
+        }
+
+        .systemkey {
+        background-color: #b4b8c0;
+        color: #000000;
+        font-weight: 600;
+        }
+
+        .keyPress {
+        background-color: #b4b8c0;
+        }
+
+        .systemkeyPress {
+        color: #000000;
+        background-color: #fefefe;
+        }
     </style>
     
     <div class="container">
@@ -270,7 +330,7 @@
 
         </section>
         
-        <footer>
+        <section class="footer">
             <div class="footer-container">
                 <span><img src="img/plus.png" alt="plus" ></span>
                 <span class="footer-contents-wrapper">
@@ -279,38 +339,66 @@
                     <span><img src="img/hashtag.png" alt="hashtag" ></span>
                 </span>
             </div>
-        </footer>
+        </section>
 
-
-        
+        <section class="keyboard-container">
+            <div id="keyboard" class="is-korean">
+                <div class="row" id="row1">
+                    <div id="KeyQ" class="key">ㅂ</div>
+                    <div id="KeyW" class="key">ㅈ</div>
+                    <div id="KeyE" class="key">ㄷ</div>
+                    <div id="KeyR" class="key">ㄱ</div>
+                    <div id="KeyT" class="key">ㅅ</div>
+                    <div id="KeyY" class="key">ㅛ</div>
+                    <div id="KeyU" class="key">ㅕ</div>
+                    <div id="KeyI" class="key">ㅑ</div>
+                    <div id="KeyO" class="key">ㅐ</div>
+                    <div id="KeyP" class="key">ㅔ</div>
+                    </div>
+                <div class="row" id="row2">
+                    <div id="KeyA" class="key">ㅁ</div>
+                    <div id="KeyS" class="key">ㄴ</div>
+                    <div id="KeyD" class="key">ㅇ</div>
+                    <div id="KeyF" class="key">ㄹ</div>
+                    <div id="KeyG" class="key">ㅎ</div>
+                    <div id="KeyH" class="key">ㅗ</div>
+                    <div id="KeyJ" class="key">ㅓ</div>
+                    <div id="KeyK" class="key">ㅏ</div>
+                    <div id="KeyL" class="key">ㅣ</div>
+                    </div>
+                <div class="row" id="row3">
+                    <div id="ShiftLeft" class="key systemkey" style="width: 2.5rem; margin: 0rem 0.5rem 0rem 0rem;">⌂</div>
+                    <div id="KeyZ-wrapper" style="display: inline;">
+                        <div id="KeyZ" class="key">ㅋ</div>
+                    </div>
+                    <div id="KeyX" class="key">ㅌ</div>
+                    <div id="KeyC" class="key">ㅊ</div>
+                    <div id="KeyV" class="key">ㅍ</div>
+                    <div id="KeyB" class="key">ㅠ</div>
+                    <div id="KeyN" class="key">ㅜ</div>
+                    <div id="KeyM-wrapper" style="display: inline;">
+                        <div id="KeyM" class="key">ㅡ</div>
+                    </div>
+                    <div id="Backspace" class="key systemkey" style="width: 2.5rem; margin: 0rem 0rem 0rem 0.5rem;">⌫</div>
+                    </div>
+                <div class="row" id="row4">
+                    <div class="key systemkey" style="width: 2.5rem">123</div>
+                    <div class="key systemkey" style="width: 2.5rem">☺️</div>
+                    <div id="Space" class="key" style="width: 12.5rem; font-size: 1rem; font-weight: 400;">간격</div>
+                    <div class="key systemkey" style="width: 5.5rem">⏎</div>
+                </div>
+            </div>
+        </section>
     </div>
 
 
-
-
-
-
-
-
-
-
-
-
-    <div id="root1">
-    </div>
-    <div id="border1"></div>
-
-
-
-    <!-- react cdn -->
-    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <!-- react dom cdn -->
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <!-- babel cdn -->
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-
-    <!-- define type as a babel  -->
-    <script type="text/babel">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const h1 = document.querySelector('header').offsetHeight;
+            const h2 = document.querySelector('section.keyboard-container').offsetHeight;
+            const h3 = document.querySelector('div.container').offsetHeight;
+            document.querySelector('section.chat-container').style.height = (h3-h1-h2)+'px';
+        })
 
         // set freind's id
         const yourId = 'hello';
@@ -321,7 +409,7 @@
 
         // set the footer's position by setting the chat conatiner's height
         const headerHeight = document.querySelector('header').offsetHeight;
-        const footerHeight = document.querySelector('footer').offsetHeight;
+        const footerHeight = document.querySelector('.footer').offsetHeight;
         const containerHeight = document.querySelector('.container').offsetHeight;
         document.querySelector('.chat-container').style.height = parseInt(containerHeight - (headerHeight + footerHeight)) + 'px';
 
@@ -356,16 +444,16 @@
             item.innerText = time;
         });
 
-
-        
-        // React start
-        class MakeBorder extends React.Component {
-            render() {
-                return <p>--------------------------------root{this.props.num}----------------------------</p>;
+        // set event to footer input textarea auto height
+        const ta = document.querySelector('textarea');
+        ta.addEventListener('input', function() {
+            if(ta.scrollHeight > ta.offsetHeight) {
+                ta.style.height= ta.scrollHeight + 'px';
             }
-        }
-
+        })
 
     </script>
+
+    
 </body>
 </html>
