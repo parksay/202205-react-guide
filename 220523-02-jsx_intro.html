@@ -104,7 +104,7 @@
 
         // jsx 객체 변환
         // Babel은 JSX를 React.createElement() 호출로 컴파일한다.
-        // 다음 ele1 과 ele2는 같은 내용입니다.
+        // 다음 ele1 과 ele2는 같은 내용이다.
         const ele1 = (
             <h1 className="greeting">
                 Hello, world!
@@ -116,7 +116,7 @@
             'Hello, world!'
         );
 
-        // 위 ele2 는 아래 ele3과 같은 객체를 생성합니다.
+        // 위 ele2 는 아래 ele3과 같은 객체를 생성한다.
         const ele3 = {
             type: 'h1',
             props: {
@@ -124,7 +124,7 @@
                 children: 'Hello, world!'
             }
         };
-        // 이러한 객체를 리액트 객체, 리액트 엘리먼트라고 합니다.
+        // 이러한 객체를 리액트 객체, 리액트 엘리먼트라고 한다.
         ReactDOM.render(
             ele2,
             document.getElementById('root4')

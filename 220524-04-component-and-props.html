@@ -58,8 +58,7 @@
         function Welcome(props) {
             return <h1>Hello, {props.name}</h1>;
         }
-        const user = {name: 'Tom', career: 'actor'}
-        ReactDOM.render(Welcome(user), document.getElementById('root1') );
+        ReactDOM.render(<Welcome name="sara" />, document.getElementById('root1') );
 
 
         // -------------------root2--------------------------------
@@ -82,7 +81,7 @@
         const eleNew =  <Greetings name="Sara" />;
         // React가 사용자 정의 컴포넌트로 작성한 엘리먼트를 발견하면 해당 컴포넌트에 JSX 어트리뷰트와 하위 요소들을 단일 객체로 전달한다. 이 객체를 “props”라고 한다.
         ReactDOM.render(eleNew, document.getElementById('root3') );
-        // 이 예시에서는 다음과 같은 일들이 일어납니다.
+        // 이 예시에서는 다음과 같은 일들이 일어난다.
         // 1. <Greetings name="Sara" /> 엘리먼트로 ReactDOM.render()를 호출한다.
         // 2. React는 {name: 'Sara'}를 props로 두고 Greetings 컴포넌트를 호출한다.
         // 3. Greetings 컴포넌트는 결과적으로 <h1>Hello, Sara</h1> 엘리먼트를 내놓는다.
