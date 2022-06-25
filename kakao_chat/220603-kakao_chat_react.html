@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <style>
+        /* 카카오 채팅창 css */
+
+        :root { 
+            font-size: 16px;
+            /* 말풍선 전체 컨테이너 마진 */
+            --chat-container-margin: 0.5rem 0.8rem;
+            /* 상대방 프로필 이미지 굴곡 */
+            --profile-img-radius: 1.5rem;
+            /* 아이디 + 대화 텍스트 + 시간 컨테이너 마진        */
+            --chat-contents-wrapper-margin: 0rem 0.6rem;
+            /* 대화 텍스트 + 시간 컨테이너 높이 */
+            --chat-box-basis: 3rem;
+            /* 대화 시간 + 상대방 아이디 텍스트 컬러 */
+            --chat-info-color: #555c62;
+            /* 대화 시간 마진 */
+            --chat-time-margin: 0rem 0.3rem;
+            /* 대화 텍스트 패딩 */
+            --chat-padding: 0.6rem 0.6rem;
+            /* 대화 텍스트 굴곡 */
+            --chat-radius: 15px;
+            /* 대화 텍스트 스타일 */
+            --chat-font: 1.2rem "Fira Sans", sans-serif;
+        }
+
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        
+        /*  카톡창 전체     */
+        .container {    
+            width: 400px;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+            background-color: #afc0cf;
+
+            /* remove later */
+            border: 1px solid red;
+
+        }
+
+        /* 상단 스마트폰 상태창 + 상단 카톡방 정보창 */
+        header > div {
+            font-weight: bold;
+
+            display: flex;
+            padding: 0.5rem 0rem;
+            justify-content: space-between;
+        }
+
+        /* 스마트폰 정보 아이콘 + 카톡방 검색 and 햄버거 메뉴 아이콘 */
+        /* TODO: 높이 중앙 정렬 */
+        header img {
+            width: 1.5rem;
+            height: auto;
+            
+        }
+
+        /* 상단 스마트폰 상태창 */
+        .device-info {
+            align-items: center;
+            margin: 0rem 2rem;
+        }
+
+        /* 상단 카톡방 정보창 */
+        .chat-info {
+            margin: 0rem 1rem;
+            align-items: center;
+        }
+
+        /* 상단 카톡방 정보창 아이콘 이미지 랩퍼 */
+        .chat-info > span > span {
+            margin: 0rem 0.4rem;
+        }
+
+
+        /* 카톡방 대화창 전체 */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /*  내 말풍선 전체 컨테이너     */
+        .my-chat-container {
+            align-self: flex-end;
+        }
+
+
+        /* 상대방 말풍선 전체 컨테이너 */
+        .your-chat-wrapper {
+            align-self: flex-start;
+
+            display: flex;
+            align-items: center;
+            margin: var(--chat-container-margin);
+        }
+
+
+        /* 상대방 프로필 이미지 */
+        .your-profile-img {
+            width: 4rem;
+            height: auto;
+            border-radius: var(--profile-img-radius);
+        }
+
+
+        /* 아이디 + 대화 텍스트 + 시간 컨테이너         */
+        .chat-contents-wrapper {
+            margin: var(--chat-contents-wrapper-margin);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+
+        /* 상대방 아이디         */
+        .your-chat-name {
+            color: var(--chat-info-color);
+            margin: 0;
+            padding: 0.3rem 0rem;
+        }
+
+
+        /* 대화 텍스트 + 시간 컨테이너 */
+        .chat-box {
+            display: flex;
+            flex-basis: var(--chat-box-basis);
+        }
+        
+
+        /* 상대방 대화 텍스트 */
+        .your-chat-msg {
+            text-align: left;
+            font: var(--chat-font);
+            border-radius: var(--chat-radius);
+            padding: var(--chat-padding);
+            background-color: #fefefe;
+        }
+
+
+        /* 대화 시간 */
+        .chat-time {
+            color: var(--chat-info-color);
+            align-self: flex-end;
+            margin: var(--chat-time-margin);
+        }
+
+
+        /* 내 대화 텍스트 */
+        .my-chat-msg {
+            text-align: right;
+            font: var(--chat-font);
+            border-radius: var(--chat-radius);
+            padding: var(--chat-padding);
+
+            align-self: flex-end;
+            background-color: #f9e54d;
+            
+        }
+
+        /* TODO : 푸터 하단 고정 / header랑 container 높이를 %로 고정하면 되긴 하는데 다이나믹하게 할 수 있는 방법 없나 */
+        .speak {
+            margin: 0.5rem 0rem 0rem 0rem;
+
+        }
+
+        /* 푸터 최상위 컨테이너 */
+        .speak-container {
+            padding: 0.5rem 0rem;
+            background-color: #fefefe;
+        }
+
+        /* 푸터 텍스트 입력창 + 이모티콘 and 해시태그 아이콘 랩퍼 */
+        .speak-contents-wrapper {
+            background-color: #f8f8f8;
+            border-radius: 1rem;
+            padding: 0.2rem 0.5rem;
+        }
+        
+        /* 푸터 텍스트 입력창 */
+        .speak textarea {
+            background-color: transparent;
+            border: none;
+            width: 70%;
+            height: 1rem;
+            overflow-y: hidden; /* 텍스트가 칸을 가득 채워도 옆에 스크롤바 생기지 않도록 만들기 */
+            resize: none;   /* textarea 우측 하단 사이즈 조절 버튼 삭제 */
+        }
+
+        /* 푸터 사진 추가 + 이모티콘 + 해시태그 아이콘 이미지 */
+        .speak img {
+            width: 1rem;
+            height: auto;
+            margin: 0rem 0.3rem;
+        }
+
+        
+    </style>
+
+    <style type="text/css">
+        /* 키보드 css */
+
+        #keyboard {
+            border-radius: 1px;
+            background-color: #d5d7dd;
+            padding: 5px 2px;
+            height: 12rem;
+            font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-content: center;
+            margin: 0rem 0.2rem;
+        }
+
+        #row2 {
+            margin: 0rem 1.5rem 0rem 1.5rem;
+        }
+
+        .key {
+            background-color: #fefefe;
+            -webkit-box-shadow: rgb(106, 106, 106) 0px 1px 1px 0px;
+            height: 2.6rem;
+            line-height: 2.8rem;
+            font-size: 1.2rem;
+            border-radius: 7px;
+            width: 2.2rem;
+            text-align: center;
+            font-family: Helvetica;
+            font-weight: 540;
+            color: #000000;
+        }
+
+        .systemkey {
+        background-color: #b4b8c0;
+        color: #000000;
+        font-weight: 600;
+        }
+
+        .keyPress {
+        background-color: #b4b8c0;
+        }
+
+        .systemkeyPress {
+        color: #000000;
+        background-color: #fefefe;
+        }
+    </style>
+    
+
+    <div class="container" id="root1">
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+<!--     
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const h1 = document.querySelector('header').offsetHeight;
+            const h2 = document.querySelector('section.keyboard-container').offsetHeight;
+            const h3 = document.querySelector('div.container').offsetHeight;
+            document.querySelector('section.chat-container').style.height = (h3-h1-h2)+'px';
+        })
+
+        // set freind's id
+        const yourId = 'hello';
+        const idEleList = document.querySelectorAll('[name="yourId"]');
+        idEleList.forEach(function(item, index){
+            item.innerText = yourId;
+        });
+
+        // set the footer's position by setting the chat conatiner's height
+        const headerHeight = document.querySelector('header').offsetHeight;
+        const footerHeight = document.querySelector('.footer').offsetHeight;
+        const containerHeight = document.querySelector('.container').offsetHeight;
+        document.querySelector('.chat-container').style.height = parseInt(containerHeight - (headerHeight + footerHeight)) + 'px';
+
+        // time formatter
+        function timeFormatter(param, type) {
+            const d = new Date(param);        //파라미터로 전달 받은 날짜를 가지고 새로운 Date 자료형 변수를 만든다.
+            const h = d.getHours();     //시를 받아온다.
+            const m = d.getMinutes().length < 2 ? '0' + d.getMinutes() : d.getMinutes();   //분을 받아온다
+            const n = h < 12 ? '오전' : '오후';      //구분을 받아온다.
+            let result = '';
+            if(type=='1') {
+                result = `${n} ${h}:${m}`;    //JavaScript 새로운 문법 => Template Literals
+            } else if (type=='2'){
+                result =  `${h}:${m}`;  
+            }
+            return result;   
+        }
+
+        // set the chat time
+        const chatTimeEleList = document.querySelectorAll('[name="chatTime"]');
+        chatTimeEleList.forEach(function(item, index) {
+            const now = new Date();
+            const time = timeFormatter(now, 1);
+            item.innerText = time;
+        });
+        
+        // set the phone time
+        const phoneTimeEleList = document.querySelectorAll('[name="phoneTime"]');
+        phoneTimeEleList.forEach(function(item, index) {
+            const now = new Date();
+            const time = timeFormatter(now, 2);
+            item.innerText = time;
+        });
+
+        // set event to footer input textarea auto height
+        const ta = document.querySelector('textarea');
+        ta.addEventListener('input', function() {
+            if(ta.scrollHeight > ta.offsetHeight) {
+                ta.style.height= ta.scrollHeight + 'px';
+            }
+        })
+
+    </script> -->
+
+    
+    
+
+    <!-- react cdn -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <!-- react dom cdn -->
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- babel cdn -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- define type as a babel  -->
+    <script type="text/babel">
+
+
+        // React start
+
+        class App extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    chatList: ['']
+                }
+
+                this.setChatList = this.setChatList.bind(this);
+            }
+            render() {
+                return (
+                    <div>
+                        <KakaoHeader />
+                        <KakaoChat chatList={this.state.chatList} />
+                        <KakaoSpeak inputHandler={this.setChatList} />
+                        <IPhoneKeyboard />
+                    </div>
+                );
+            }
+
+            setChatList(param) {
+                //TODO: 기존 state 에서 chatList 가져와서 거기서 새로운 param 덧붙여서 그걸 다시 state에 넣어주기
+                //다른 데서는 텍스트만 넣어주면 되고, 여기서는 그걸 배열로 바꿔서 넣어주는 작업까지
+                this.setState({
+                    chatList: [param]
+                });
+            }
+
+        }
+
+
+        class KakaoHeader extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    phoneTime: '10:36',
+                    unreadChat: 27,
+                    chatRoomName: 'Hello My Friend!'
+                }
+            }
+            render() {
+                return (
+                    <header>
+                        <div className="device-info">
+                            <span name="phoneTime">{this.state.phoneTime}</span>
+                            <span>
+                                <span><img src="img/signal.png" /></span>
+                                <span><img src="img/wifi.png" /></span>
+                                <span><img src="img/battery.png" /></span>
+                            </span>
+                        </div>
+                        <div className="chat-info">
+                            <span>&lt; {this.state.unreadChat}</span>
+                            <span name="yourId">{this.state.chatRoomName}</span>
+                            <span>
+                                <span><img style={{position: "relative", top:"0.25rem"}} src="img/search.png" /></span>
+                                <span><img src="img/hamburger.png" /></span>
+                            </span>
+                        </div>
+                    </header>
+                );
+            }
+        }
+
+
+        class KakaoChat extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    chatTime: '오후 5:19',
+                    friendsName: "내 친구"
+                }
+
+            }
+            render() {
+                return (
+                    <section className="chat-container">
+
+                        <div className="your-chat-wrapper">
+                            <span className="profile-img-wrapper">
+                                <img className="your-profile-img" src="img/default_profile.PNG" alt="default" />
+                            </span>
+                            <span className="chat-contents-wrapper">
+                                <p className="your-chat-name" name="yourId">{this.state.friendsName}</p>
+                                <div className="chat-box">
+                                    <span className="your-chat-msg">
+                                        알겠어요
+                                    </span>
+                                    <span className="chat-time" name="chatTime">
+                                        {this.state.chatTime}
+                                    </span>
+                                </div>
+                            </span>
+                        </div>
+
+                        <div className="my-chat-container">
+                            <span className="chat-contents-wrapper">
+                                <div className="chat-box">
+                                    <span className="chat-time" name="chatTime">
+                                        {this.state.chatTime}
+                                    </span>
+                                    <span className="my-chat-msg">
+                                        계단에서 호출할게요!
+                                    </span>
+                                </div>
+                            </span>
+                        </div>
+                        <div className="my-chat-container">
+                            <span className="chat-contents-wrapper">
+                                <div className="chat-box">
+                                    <span className="chat-time" name="chatTime">
+                                        {this.state.chatTime}
+                                    </span>
+                                    <span className="my-chat-msg">
+                                        {this.props.chatList[0]}
+                                    </span>
+                                </div>
+                            </span>
+                        </div>
+
+                    </section>
+                );
+            }
+        }
+        
+
+        class KakaoSpeak extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    contents: ''
+                };
+
+                this.inputContents = this.inputContents.bind(this);
+            }
+
+            render() {
+                return (
+                    <section className="speak">
+                        <div className="speak-container">
+                            <span><img src="img/plus.png" alt="plus" /></span>
+                            <span className="speak-contents-wrapper">
+                                <span><textarea type="text" value={this.state.contents} onInput={this.inputContents} ></textarea></span>
+                                <span><img src="img/emoji.png" alt="emoji" /></span>
+                                <span><img src="img/hashtag.png" alt="hashtag" /></span>
+                            </span>
+                        </div>
+                    </section>
+                );
+            }
+
+            inputContents(e) {
+                this.setState({
+                    contents: e.target.value
+                });
+                this.enterContents(this.state.contents);
+            }
+
+            enterContents(param) {
+                // TODO: enter 누르면 넘어가게; textarea 부분을 form 태그로 만들어야 하나..
+                this.props.inputHandler(param);
+            }
+            
+        }
+
+
+        class IPhoneKeyboard extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    
+                }
+
+            }
+            render() {
+                return (
+                    <section className="keyboard-container">
+                        <div id="keyboard" className="is-korean">
+                            <div className="row" id="row1">
+                                <div id="KeyQ" className="key">ㅂ</div>
+                                <div id="KeyW" className="key">ㅈ</div>
+                                <div id="KeyE" className="key">ㄷ</div>
+                                <div id="KeyR" className="key">ㄱ</div>
+                                <div id="KeyT" className="key">ㅅ</div>
+                                <div id="KeyY" className="key">ㅛ</div>
+                                <div id="KeyU" className="key">ㅕ</div>
+                                <div id="KeyI" className="key">ㅑ</div>
+                                <div id="KeyO" className="key">ㅐ</div>
+                                <div id="KeyP" className="key">ㅔ</div>
+                                </div>
+                            <div className="row" id="row2">
+                                <div id="KeyA" className="key">ㅁ</div>
+                                <div id="KeyS" className="key">ㄴ</div>
+                                <div id="KeyD" className="key">ㅇ</div>
+                                <div id="KeyF" className="key">ㄹ</div>
+                                <div id="KeyG" className="key">ㅎ</div>
+                                <div id="KeyH" className="key">ㅗ</div>
+                                <div id="KeyJ" className="key">ㅓ</div>
+                                <div id="KeyK" className="key">ㅏ</div>
+                                <div id="KeyL" className="key">ㅣ</div>
+                                </div>
+                            <div className="row" id="row3">
+                                <div id="ShiftLeft" className="key systemkey" style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
+                                <div id="KeyZ-wrapper" style={{display: "inline"}}>
+                                    <div id="KeyZ" className="key">ㅋ</div>
+                                </div>
+                                <div id="KeyX" className="key">ㅌ</div>
+                                <div id="KeyC" className="key">ㅊ</div>
+                                <div id="KeyV" className="key">ㅍ</div>
+                                <div id="KeyB" className="key">ㅠ</div>
+                                <div id="KeyN" className="key">ㅜ</div>
+                                <div id="KeyM-wrapper" style={{display: "inline"}}>
+                                    <div id="KeyM" className="key">ㅡ</div>
+                                </div>
+                                <div id="Backspace" className="key systemkey" style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
+                            </div>
+                            <div className="row" id="row4">
+                                <div className="key systemkey" style={{width: "2.5rem"}}>123</div>
+                                <div className="key systemkey" style={{width: "2.5rem"}}>☺️</div>
+                                <div id="Space" className="key" style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
+                                <div className="key systemkey" style={{width: "5.5rem"}}>⏎</div>
+                            </div>
+                        </div>
+                    </section>
+                );
+            }
+        }
+
+
+
+        ReactDOM.render(<App />, document.querySelector('#root1'));
+
+    </script>
+</body>
+</html>
