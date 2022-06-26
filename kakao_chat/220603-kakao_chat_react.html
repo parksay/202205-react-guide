@@ -80,6 +80,11 @@
             margin: 0rem 2rem;
         }
 
+        /* 상단 스마트폰 상태창 아이콘 */
+        .device-info img {
+            margin: 0rem 0.15rem;
+        }
+
         /* 상단 카톡방 정보창 */
         .chat-info {
             margin: 0rem 1rem;
@@ -192,7 +197,7 @@
         .speak-contents-wrapper {
             background-color: #f8f8f8;
             border-radius: 1rem;
-            padding: 0.2rem 0.5rem;
+            padding: 0.2rem 1.2rem;
         }
         
         /* 푸터 텍스트 입력창 */
@@ -273,7 +278,7 @@
     </style>
     
 
-    <div class="container" id="root1">
+    <div id="root1">
     </div>
 
 
@@ -369,32 +374,73 @@
             constructor(props) {
                 super(props);
                 this.state = {
-                    chatList: ['']
+                    chatList: [
+                            {isMyChat:1, contents:'당근이세요?'},
+                            {isMyChat:0, contents:'네 안녕하세요'},
+                            {isMyChat:1, contents:'혹시 교통비만 빼주실 수 있을까요 ㅠㅠㅠ'},
+                            {isMyChat:0, contents:'ㅈㅅ....'},
+                        ]
                 }
 
                 this.setChatList = this.setChatList.bind(this);
             }
             render() {
                 return (
-                    <div>
-                        <KakaoHeader />
-                        <KakaoChat chatList={this.state.chatList} />
-                        <KakaoSpeak inputHandler={this.setChatList} />
-                        <IPhoneKeyboard />
+                    <div style={{display:"flex", flexDirection:"row", alignItems:"center"}}>
+                        <div>
+                            <FriendsInput inputHandler={this.setChatList} />
+                        </div>
+                        <div className="container">
+                            <KakaoHeader />
+                            <KakaoChat chatList={this.state.chatList} />
+                            <KakaoSpeak inputHandler={this.setChatList} />
+                        </div>
                     </div>
                 );
             }
 
-            setChatList(param) {
-                //TODO: 기존 state 에서 chatList 가져와서 거기서 새로운 param 덧붙여서 그걸 다시 state에 넣어주기
-                //다른 데서는 텍스트만 넣어주면 되고, 여기서는 그걸 배열로 바꿔서 넣어주는 작업까지
+            setChatList(isMyChat, contents) {   // isMyChat: 내 말풍선인지 친구 말풍선인지 구분자 / contents: 말풍선 내용
+                const newItem = {isMyChat: isMyChat, contents: contents};
+                const oldList = this.state.chatList;
+                const newList = [...oldList, newItem];
                 this.setState({
-                    chatList: [param]
+                    chatList: newList
                 });
+            }
+            // TODO: 시간도 header랑 char-container 두 군데에서만 들고 있으면 됨. keyboard나 speak에서는 필요 없음. 시간은 App에서 관리. 1분마다 reload
+        }
+
+        class FriendsInput extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {contents: ''}
+                this.enterContents = this.enterContents.bind(this);
+                this.inputContents = this.inputContents.bind(this);
+            }
+
+            inputContents(e) {
+                this.setState({contents: e.target.value});
+            }
+            
+            enterContents(e)  {
+                // key event 걸기. enter는 submit하고 shif+enter는 다음 줄로 넘어가기
+                if(e.code=='Enter') {
+                    if(e.shiftKey) {
+                        // shift + enter 입력했을 때
+                        console.log('next line');
+                        // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
+                    } else {
+                        this.props.inputHandler(0, this.state.contents);
+                        this.setState({contents: ''});
+                    }
+                }
+            }
+
+            render() {
+                return ( <textarea value={this.state.contents} onInput={this.inputContents} onKeyDown={this.enterContents} style={{boder:"solid black 1px"}} ></textarea> );
             }
 
         }
-
 
         class KakaoHeader extends React.Component {
             constructor(props) {
@@ -440,51 +486,50 @@
 
             }
             render() {
+                const items = this.props.chatList;
+                const renderList = items.map((item, index)=> { 
+                    let result; 
+                    if(item.isMyChat) {
+                        result = (
+                            <div className="my-chat-container" key={index}>
+                                <span className="chat-contents-wrapper">
+                                    <div className="chat-box">
+                                        <span className="chat-time" name="chatTime">
+                                            {this.state.chatTime}
+                                        </span>
+                                        <span className="my-chat-msg">
+                                            {item.contents}
+                                        </span>
+                                    </div>
+                                </span>
+                            </div>
+                        );
+                    } else {
+                        result = (
+                            <div className="your-chat-wrapper" key={index}>
+                                <span className="profile-img-wrapper">
+                                    <img className="your-profile-img" src="img/default_profile.PNG" alt="default" />
+                                </span>
+                                <span className="chat-contents-wrapper">
+                                    <p className="your-chat-name" name="yourId">{this.state.friendsName}</p>
+                                    <div className="chat-box">
+                                        <span className="your-chat-msg">
+                                            {item.contents}
+                                        </span>
+                                        <span className="chat-time" name="chatTime">
+                                            {this.state.chatTime}
+                                        </span>
+                                    </div>
+                                </span>
+                            </div>
+                        );
+                    }
+                    return result;
+                
+                });
                 return (
                     <section className="chat-container">
-
-                        <div className="your-chat-wrapper">
-                            <span className="profile-img-wrapper">
-                                <img className="your-profile-img" src="img/default_profile.PNG" alt="default" />
-                            </span>
-                            <span className="chat-contents-wrapper">
-                                <p className="your-chat-name" name="yourId">{this.state.friendsName}</p>
-                                <div className="chat-box">
-                                    <span className="your-chat-msg">
-                                        알겠어요
-                                    </span>
-                                    <span className="chat-time" name="chatTime">
-                                        {this.state.chatTime}
-                                    </span>
-                                </div>
-                            </span>
-                        </div>
-
-                        <div className="my-chat-container">
-                            <span className="chat-contents-wrapper">
-                                <div className="chat-box">
-                                    <span className="chat-time" name="chatTime">
-                                        {this.state.chatTime}
-                                    </span>
-                                    <span className="my-chat-msg">
-                                        계단에서 호출할게요!
-                                    </span>
-                                </div>
-                            </span>
-                        </div>
-                        <div className="my-chat-container">
-                            <span className="chat-contents-wrapper">
-                                <div className="chat-box">
-                                    <span className="chat-time" name="chatTime">
-                                        {this.state.chatTime}
-                                    </span>
-                                    <span className="my-chat-msg">
-                                        {this.props.chatList[0]}
-                                    </span>
-                                </div>
-                            </span>
-                        </div>
-
+                        {renderList}
                     </section>
                 );
             }
@@ -495,27 +540,114 @@
             constructor(props) {
                 super(props);
                 this.state = {
-                    contents: ''
+                    contents: '',
+                    keyboardSettings: {korean: 'is-korean', english:'', symbols:'is-symbols'},
+                    keyboardType: 'is-korean',
+                    keyList: { 
+                        row1: [
+                            {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1'},
+                            {code: 'KeyW', Korean: 'ㅈ', English: 'w', Symbols: '2'},
+                            {code: 'KeyE', Korean: 'ㄷ', English: 'e', Symbols: '3'},
+                            {code: 'KeyR', Korean: 'ㄱ', English: 'r', Symbols: '4'},
+                            {code: 'KeyT', Korean: 'ㅅ', English: 't', Symbols: '5'},
+                            {code: 'KeyY', Korean: 'ㅛ', English: 'y', Symbols: '6'},
+                            {code: 'KeyU', Korean: 'ㅕ', English: 'u', Symbols: '7'},
+                            {code: 'KeyI', Korean: 'ㅑ', English: 'i', Symbols: '8'},
+                            {code: 'KeyO', Korean: 'ㅐ', English: 'o', Symbols: '9'},
+                            {code: 'KeyP', Korean: 'ㅔ', English: 'p', Symbols: '0'},
+                        ],
+                        row2: [
+                            {code: 'KeyA', Korean: 'ㅁ', English: 'a', Symbols: '-'},
+                            {code: 'KeyS', Korean: 'ㄴ', English: 's', Symbols: '/'},
+                            {code: 'KeyD', Korean: 'ㅇ', English: 'd', Symbols: ':'},
+                            {code: 'KeyF', Korean: 'ㄹ', English: 'f', Symbols: ';'},
+                            {code: 'KeyG', Korean: 'ㅎ', English: 'g', Symbols: '('},
+                            {code: 'KeyH', Korean: 'ㅗ', English: 'h', Symbols: ')'},
+                            {code: 'KeyJ', Korean: 'ㅓ', English: 'j', Symbols: '\\'},
+                            {code: 'KeyK', Korean: 'ㅏ', English: 'k', Symbols: '&'},
+                            {code: 'KeyL', Korean: 'ㅣ', English: 'l', Symbols: '@'},
+                        ],
+                        row3: [
+                            {code: 'KeyZ', Korean: 'ㅋ', English: 'z', Symbols: '\"'},
+                            {code: 'KeyX', Korean: 'ㅌ', English: 'x', Symbols: '.'},
+                            {code: 'KeyC', Korean: 'ㅊ', English: 'c', Symbols: ','},
+                            {code: 'KeyV', Korean: 'ㅍ', English: 'v', Symbols: '?'},
+                            {code: 'KeyB', Korean: 'ㅠ', English: 'b', Symbols: '!'},
+                            {code: 'KeyN', Korean: 'ㅜ', English: 'n', Symbols: '\''},
+                            {code: 'KeyM', Korean: 'ㅡ', English: 'm', Symbols: ''}
+                        ]
+                    }
                 };
 
                 this.inputContents = this.inputContents.bind(this);
+                this.enterContents = this.enterContents.bind(this);
+                // 내부에서만 쓰는 함수는 this를 bind해주지 않아도 됨. 실행 주체가 바뀌는 경우에만 bind 해줌
             }
 
             render() {
+                // 키보드 안에 들어갈 키 내용물들 요소 만들기
+                const keyListRow1 = this.state.keyList.row1;
+                const keyListRow2 = this.state.keyList.row2;
+                const keyListRow3 = this.state.keyList.row3;
+                const keyboardRow1 = keyListRow1.map((item, index)=>{
+                    return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
+                });
+                const keyboardRow2 = keyListRow2.map((item, index)=>{
+                    return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
+                });
+                const keyboardRow3 = keyListRow3.map((item, index)=>{
+                    if(item.code == 'KeyZ' || item.code == 'KeyM') {
+                        return (
+                                <div id={item.code + "-wrapper"} style={{display: "inline"}} key={item.code}>
+                                    <div id={item.code} className="key">{this.getKeyTextVal(item)}</div>
+                                </div>
+                                );
+                    } else {
+                        return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
+                    }
+                });
+
                 return (
-                    <section className="speak">
-                        <div className="speak-container">
-                            <span><img src="img/plus.png" alt="plus" /></span>
-                            <span className="speak-contents-wrapper">
-                                <span><textarea type="text" value={this.state.contents} onInput={this.inputContents} ></textarea></span>
-                                <span><img src="img/emoji.png" alt="emoji" /></span>
-                                <span><img src="img/hashtag.png" alt="hashtag" /></span>
-                            </span>
-                        </div>
-                    </section>
+                    <div>
+
+                        <section className="speak">
+                            <div className="speak-container">
+                                <span><img src="img/plus.png" alt="plus" /></span>
+                                <span className="speak-contents-wrapper">
+                                    <span><textarea type="text" value={this.state.contents} onInput={this.inputContents} onKeyDown={this.enterContents}></textarea></span>
+                                    <span><img src="img/emoji.png" alt="emoji" /></span>
+                                    <span><img src="img/hashtag.png" alt="hashtag" /></span>
+                                </span>
+                            </div>
+                        </section>
+                        
+                        <section className="keyboard-container">
+                            <div id="keyboard" className="is-korean">
+                                <div className="row" id="row1">
+                                    {keyboardRow1}
+                                </div>
+                                <div className="row" id="row2">
+                                    {keyboardRow2}
+                                </div>
+                                <div className="row" id="row3">
+                                    <div id="ShiftLeft" className="key systemkey" style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
+                                    {keyboardRow3}
+                                    <div id="Backspace" className="key systemkey" style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
+                                </div>
+                                <div className="row" id="row4">
+                                    <div className="key systemkey" style={{width: "2.5rem"}}>123</div>
+                                    <div className="key systemkey" style={{width: "2.5rem"}}>☺️</div>
+                                    <div id="Space" className="key" style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
+                                    <div className="key systemkey" style={{width: "5.5rem"}}>⏎</div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
                 );
             }
 
+            // textarea <=> state 값 동기화
             inputContents(e) {
                 this.setState({
                     contents: e.target.value
@@ -523,76 +655,45 @@
                 this.enterContents(this.state.contents);
             }
 
-            enterContents(param) {
-                // TODO: enter 누르면 넘어가게; textarea 부분을 form 태그로 만들어야 하나..
-                this.props.inputHandler(param);
+            // key event 걸기
+            enterContents(e) {
+                // keyboard press event handler
+                this.keyboardHandler(e);
+                // enter는 상위 컴포넌트로 submit하고 shif+enter는 다음 줄로 넘어가기
+                if(e.code=='Enter') {
+                    if(e.shiftKey) {
+                        // shift + enter 입력했을 때
+                        console.log('next line');
+                        // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
+                    } else {
+                        this.props.inputHandler(1, this.state.contents);
+                        this.setState({contents: ''});
+                    }
+                }
             }
             
-        }
+            // =================== keyboard event start ======================
+            keyboardHandler(e) {
+                console.log(e);
+            }
 
-
-        class IPhoneKeyboard extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = {
-                    
+            getKeyTextVal(item) {
+                let result;
+                if(this.state.keyboardType == this.state.keyboardSettings.korean) {
+                    result = item.Korean;
+                } else if(this.state.keyboardType == this.state.keyboardSettings.symbols) {
+                    result = item.Symbols;
+                } else if(this.state.keyboardType == this.state.keyboardSettings.english) {
+                    result = item.English;
+                } else {
+                    console.log('uncaught keyboard type');
+                    result = 'error';
                 }
+                return result;
+            }
 
-            }
-            render() {
-                return (
-                    <section className="keyboard-container">
-                        <div id="keyboard" className="is-korean">
-                            <div className="row" id="row1">
-                                <div id="KeyQ" className="key">ㅂ</div>
-                                <div id="KeyW" className="key">ㅈ</div>
-                                <div id="KeyE" className="key">ㄷ</div>
-                                <div id="KeyR" className="key">ㄱ</div>
-                                <div id="KeyT" className="key">ㅅ</div>
-                                <div id="KeyY" className="key">ㅛ</div>
-                                <div id="KeyU" className="key">ㅕ</div>
-                                <div id="KeyI" className="key">ㅑ</div>
-                                <div id="KeyO" className="key">ㅐ</div>
-                                <div id="KeyP" className="key">ㅔ</div>
-                                </div>
-                            <div className="row" id="row2">
-                                <div id="KeyA" className="key">ㅁ</div>
-                                <div id="KeyS" className="key">ㄴ</div>
-                                <div id="KeyD" className="key">ㅇ</div>
-                                <div id="KeyF" className="key">ㄹ</div>
-                                <div id="KeyG" className="key">ㅎ</div>
-                                <div id="KeyH" className="key">ㅗ</div>
-                                <div id="KeyJ" className="key">ㅓ</div>
-                                <div id="KeyK" className="key">ㅏ</div>
-                                <div id="KeyL" className="key">ㅣ</div>
-                                </div>
-                            <div className="row" id="row3">
-                                <div id="ShiftLeft" className="key systemkey" style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
-                                <div id="KeyZ-wrapper" style={{display: "inline"}}>
-                                    <div id="KeyZ" className="key">ㅋ</div>
-                                </div>
-                                <div id="KeyX" className="key">ㅌ</div>
-                                <div id="KeyC" className="key">ㅊ</div>
-                                <div id="KeyV" className="key">ㅍ</div>
-                                <div id="KeyB" className="key">ㅠ</div>
-                                <div id="KeyN" className="key">ㅜ</div>
-                                <div id="KeyM-wrapper" style={{display: "inline"}}>
-                                    <div id="KeyM" className="key">ㅡ</div>
-                                </div>
-                                <div id="Backspace" className="key systemkey" style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
-                            </div>
-                            <div className="row" id="row4">
-                                <div className="key systemkey" style={{width: "2.5rem"}}>123</div>
-                                <div className="key systemkey" style={{width: "2.5rem"}}>☺️</div>
-                                <div id="Space" className="key" style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
-                                <div className="key systemkey" style={{width: "5.5rem"}}>⏎</div>
-                            </div>
-                        </div>
-                    </section>
-                );
-            }
         }
-
+// end of speak section !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
         ReactDOM.render(<App />, document.querySelector('#root1'));
