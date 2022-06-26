@@ -292,6 +292,19 @@
 
 
 <!--     
+    // TODO: 
+        1) chat container 높이 맞추기   
+            > App 컴포넌트에서 각 하위 컴포넌트들의 높이를 있어야 할 듯. 
+            > 속성으로 넣어줄 때는 끝에 'px' 붙이는 거 잊지 않긔
+        2) time 동기화하기
+            > header 에 출력되는 device 시간이랑 chat input 되는 시간이랑 동기화하기
+            > App 컴포넌트에서 시간을 들고 있고 하위 컴포넌트들에서는 받아다 쓰면 될 듯
+        3) 키보드에 이벤트 마저 걸어주기
+            > 일반키 누르는 효과 CSS 적용하기 : 눌려 있는 키는 해당 컴포넌트가 state 로 들고 있기, 떼면 사라지고.
+            > 특수문자키 키 누르는 CSS 효과 적용하기 : 물음표나 ... 같은 것들, 실제 key 위치랑 다를 경우
+            > shift key 눌렀을 때 이벤트 : 쌍자음 + 특수문자 변경
+            > 특수문자로 전환했을 때 row layout 바뀌는 거 구현
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const h1 = document.querySelector('header').offsetHeight;
@@ -300,18 +313,6 @@
             document.querySelector('section.chat-container').style.height = (h3-h1-h2)+'px';
         })
 
-        // set freind's id
-        const yourId = 'hello';
-        const idEleList = document.querySelectorAll('[name="yourId"]');
-        idEleList.forEach(function(item, index){
-            item.innerText = yourId;
-        });
-
-        // set the footer's position by setting the chat conatiner's height
-        const headerHeight = document.querySelector('header').offsetHeight;
-        const footerHeight = document.querySelector('.footer').offsetHeight;
-        const containerHeight = document.querySelector('.container').offsetHeight;
-        document.querySelector('.chat-container').style.height = parseInt(containerHeight - (headerHeight + footerHeight)) + 'px';
 
         // time formatter
         function timeFormatter(param, type) {
@@ -437,7 +438,13 @@
             }
 
             render() {
-                return ( <textarea value={this.state.contents} onInput={this.inputContents} onKeyDown={this.enterContents} style={{boder:"solid black 1px"}} ></textarea> );
+                return ( <textarea 
+                                value={this.state.contents} 
+                                onInput={this.inputContents} 
+                                onKeyDown={this.enterContents} 
+                                style={{boder:"solid black 1px"}} 
+                                placeholder="친구 입장에서 메세지 보내기"
+                            ></textarea> );
             }
 
         }
@@ -539,10 +546,18 @@
         class KakaoSpeak extends React.Component {
             constructor(props) {
                 super(props);
+                
+                // 내부에서만 쓰는 함수는 this를 bind해주지 않아도 됨. 실행 주체가 바뀌는 경우에만 bind 해줌
+                this.inputContents = this.inputContents.bind(this);
+                this.keyDownHandler = this.keyDownHandler.bind(this);
+                this.keyUpHandler = this.keyUpHandler.bind(this);
+
                 this.state = {
                     contents: '',
-                    keyboardSettings: {korean: 'is-korean', english:'', symbols:'is-symbols'},
+                    keyboardSettings: {korean: 'is-korean', english:'is-english', symbols:'is-symbols'},
                     keyboardType: 'is-korean',
+                    keyboardToggle: {korean: "ArrowRight", symbols:"End", english: "ArrowDown"},
+                    pressedKeys: [],
                     keyList: { 
                         row1: [
                             {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1'},
@@ -579,33 +594,13 @@
                     }
                 };
 
-                this.inputContents = this.inputContents.bind(this);
-                this.enterContents = this.enterContents.bind(this);
-                // 내부에서만 쓰는 함수는 this를 bind해주지 않아도 됨. 실행 주체가 바뀌는 경우에만 bind 해줌
             }
 
             render() {
                 // 키보드 안에 들어갈 키 내용물들 요소 만들기
-                const keyListRow1 = this.state.keyList.row1;
-                const keyListRow2 = this.state.keyList.row2;
-                const keyListRow3 = this.state.keyList.row3;
-                const keyboardRow1 = keyListRow1.map((item, index)=>{
-                    return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
-                });
-                const keyboardRow2 = keyListRow2.map((item, index)=>{
-                    return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
-                });
-                const keyboardRow3 = keyListRow3.map((item, index)=>{
-                    if(item.code == 'KeyZ' || item.code == 'KeyM') {
-                        return (
-                                <div id={item.code + "-wrapper"} style={{display: "inline"}} key={item.code}>
-                                    <div id={item.code} className="key">{this.getKeyTextVal(item)}</div>
-                                </div>
-                                );
-                    } else {
-                        return ( <div id={item.code} className="key" key={item.code}>{this.getKeyTextVal(item)}</div> );
-                    }
-                });
+                const keyboardRow1 = this.getKeyboardRow(this.state.keyList.row1);
+                const keyboardRow2 = this.getKeyboardRow(this.state.keyList.row2);
+                const keyboardRow3 = this.getKeyboardRow(this.state.keyList.row3);
 
                 return (
                     <div>
@@ -614,7 +609,12 @@
                             <div className="speak-container">
                                 <span><img src="img/plus.png" alt="plus" /></span>
                                 <span className="speak-contents-wrapper">
-                                    <span><textarea type="text" value={this.state.contents} onInput={this.inputContents} onKeyDown={this.enterContents}></textarea></span>
+                                    <span><textarea type="text" 
+                                                    value={this.state.contents} 
+                                                    onInput={this.inputContents} 
+                                                    onKeyDown={this.keyDownHandler}
+                                                    onKeyUp={this.keyUpHandler}
+                                                ></textarea></span>
                                     <span><img src="img/emoji.png" alt="emoji" /></span>
                                     <span><img src="img/hashtag.png" alt="hashtag" /></span>
                                 </span>
@@ -622,7 +622,7 @@
                         </section>
                         
                         <section className="keyboard-container">
-                            <div id="keyboard" className="is-korean">
+                            <div id="keyboard" className={this.state.keyboardType}>
                                 <div className="row" id="row1">
                                     {keyboardRow1}
                                 </div>
@@ -630,15 +630,15 @@
                                     {keyboardRow2}
                                 </div>
                                 <div className="row" id="row3">
-                                    <div id="ShiftLeft" className="key systemkey" style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
+                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
                                     {keyboardRow3}
-                                    <div id="Backspace" className="key systemkey" style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
+                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
                                 </div>
                                 <div className="row" id="row4">
-                                    <div className="key systemkey" style={{width: "2.5rem"}}>123</div>
-                                    <div className="key systemkey" style={{width: "2.5rem"}}>☺️</div>
-                                    <div id="Space" className="key" style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
-                                    <div className="key systemkey" style={{width: "5.5rem"}}>⏎</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>123</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>☺️</div>
+                                    <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "5.5rem"}}>⏎</div>
                                 </div>
                             </div>
                         </section>
@@ -652,13 +652,44 @@
                 this.setState({
                     contents: e.target.value
                 });
-                this.enterContents(this.state.contents);
             }
 
-            // key event 걸기
-            enterContents(e) {
+            // list 주면 keyboard에서 row 하나를 만들어서 되돌려줌. 한글 or 영어 or 특수문자 출력값도 넣어 주고 className 이나 wrapper 까지 알아서 고려함.
+            getKeyboardRow(keyList) {
+                const result = keyList.map((item, index)=>{
+                    if(item.code == 'KeyZ' || item.code == 'KeyM') {
+                            return (
+                                    <div id={item.code + "-wrapper"} style={{display: "inline"}} key={item.code}>
+                                        <div id={item.code} className={this.getKeyClassName(false, item.code)} >{this.getKeyTextVal(item)}</div>
+                                    </div>
+                                    );
+                        } else {
+                            return ( <div id={item.code} className={this.getKeyClassName(false, item.code)} key={item.code} >{this.getKeyTextVal(item)}</div> );
+                        }
+                    });
+                return result;
+            }
+
+            // keyboard에서 key 요소들 만들 때 className 만들어서 되돌려주기
+            getKeyClassName(isSystemKey,code) {
+                const cl = ['key']
+                if(isSystemKey) {
+                    cl.push('systemkey');
+                }
+                if(this.state.pressedKeys.includes(code)) {
+                    if(isSystemKey) {
+                        cl.push('systemkeyPress');
+                    } else {
+                        cl.push('keyPress');
+                    }
+                }
+                return cl.join(" ");
+            }
+
+            // 키보드 누름 이벤트
+            keyDownHandler(e) {
                 // keyboard press event handler
-                this.keyboardHandler(e);
+                this.keyboardKeyDownHandler(e);
                 // enter는 상위 컴포넌트로 submit하고 shif+enter는 다음 줄로 넘어가기
                 if(e.code=='Enter') {
                     if(e.shiftKey) {
@@ -672,11 +703,27 @@
                 }
             }
             
+            // 키보드 뗌 이벤트
+            keyUpHandler(e) {
+                this.keyboardKeyUpHandler(e);
+            }
             // =================== keyboard event start ======================
-            keyboardHandler(e) {
+            keyboardKeyDownHandler(e) {
                 console.log(e);
+                this.effectKeyDown(e.code);  // 키 누르면 css 변경
+                this.changeKeyboard(e.code);   // 문자나 레이아웃 변경
+                this.effectSystemKeyDown(e);  // 시스템키들 개별 이벤트
+                this.effectShiftKeydown(e.code); // 한글 쌍자음 이벤트 - shift 누를 때
             }
 
+            keyboardKeyUpHandler(e) {
+                const oldList = this.state.pressedKeys;
+                const newList = oldList.filter((item)=>{ 
+                                    if(item == e.code) {return false;} 
+                                    else {return true;}
+                                });
+                this.setState({pressedKeys: newList});
+            }
             getKeyTextVal(item) {
                 let result;
                 if(this.state.keyboardType == this.state.keyboardSettings.korean) {
@@ -690,6 +737,35 @@
                     result = 'error';
                 }
                 return result;
+            }
+
+            effectKeyDown(code) {
+                const oldList = this.state.pressedKeys;
+                const newList = [...oldList, code];
+                this.setState({pressedKeys: newList});
+            }
+            changeKeyboard(code) {
+                if(!code == this.state.keyboardSettings.korean && 
+                !code == this.state.keyboardSettings.english  &&
+                !code == this.state.keyboardSettings.symbols  ) {
+                    // 누른 키가 한영 변환이나 특수문자 변환이 아니면 그대로 끝내기
+                    return;
+                } else if(code == this.state.keyboardToggle.korean) {
+                    this.setState({keyboardType: this.state.keyboardSettings.korean});
+                } else if(code == this.state.keyboardToggle.english) {
+                    this.setState({keyboardType: this.state.keyboardSettings.english});
+                } else if(code == this.state.keyboardToggle.symbols) {
+                    this.setState({keyboardType: this.state.keyboardSettings.symbols});
+                }
+                
+            }
+            effectSystemKeyDown(e) {
+                return 0;
+
+            }
+            effectShiftKeydown(code) {
+                return 0;
+
             }
 
         }
