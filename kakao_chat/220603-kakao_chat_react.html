@@ -243,8 +243,18 @@
             margin: 0rem 0.2rem;
         }
 
+        /* 한글/영어일 때 */
         #row2 {
             margin: 0rem 1.5rem 0rem 1.5rem;
+        }
+
+        /* 특수문자일 때 */
+        #keyboard.is-symbols #row2 {
+            margin: 0rem 0.2rem 0rem 0.2rem;
+        }
+        /* 특수문자일 때 */
+        #keyboard.is-symbols #row3 > .key{
+            width: 3rem;
         }
 
         .key {
@@ -257,23 +267,31 @@
             width: 2.2rem;
             text-align: center;
             font-family: Helvetica;
-            font-weight: 540;
             color: #000000;
         }
 
         .systemkey {
-        background-color: #b4b8c0;
-        color: #000000;
-        font-weight: 600;
+            background-color: #b4b8c0;
+            color: #000000;
+        }
+
+        /* 특수문자일 경우 쉬프트키 */
+        #keyboard.is-symbols #ShiftLeft {
+            font-size: 0.8rem;
+        }
+        
+        /* 특수문자일 경우 123키 */
+        #keyboard.is-symbols #ToggleKeyboard {
+            font-size: 0.8rem;
         }
 
         .keyPress {
-        background-color: #b4b8c0;
+            background-color: #b4b8c0;
         }
 
         .systemkeyPress {
-        color: #000000;
-        background-color: #fefefe;
+            color: #000000;
+            background-color: #fefefe;
         }
     </style>
     
@@ -300,10 +318,13 @@
             > header 에 출력되는 device 시간이랑 chat input 되는 시간이랑 동기화하기
             > App 컴포넌트에서 시간을 들고 있고 하위 컴포넌트들에서는 받아다 쓰면 될 듯
         3) 키보드에 이벤트 마저 걸어주기
-            > 일반키 누르는 효과 CSS 적용하기 : 눌려 있는 키는 해당 컴포넌트가 state 로 들고 있기, 떼면 사라지고.
+            **> 일반키 누르는 효과 CSS 적용하기 : 눌려 있는 키는 해당 컴포넌트가 state 로 들고 있기, 떼면 사라지고.
             > 특수문자키 키 누르는 CSS 효과 적용하기 : 물음표나 ... 같은 것들, 실제 key 위치랑 다를 경우
-            > shift key 눌렀을 때 이벤트 : 쌍자음 + 특수문자 변경
-            > 특수문자로 전환했을 때 row layout 바뀌는 거 구현
+            **> shift key 눌렀을 때 이벤트 : 쌍자음 + 특수문자 변경
+            **> 특수문자로 전환했을 때 row layout 바뀌는 거 구현 
+                +)  컴포넌트가 들고 있는 state에서 key list 내용물을 바꾸기 
+                +) 이게 바로 리액트적인 사고. 해당 요소에 접근해서 자리를 저기로 옮기고, 속성을 저렇게 바꾸고, 그게 js적인 사고.
+                +) 상황에 따라서 동적으로 변하는 데이터들을 어떻게 컴포넌트 차원에서 들고 있으면서 관리할 수 있을까.
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -555,21 +576,22 @@
                 this.state = {
                     contents: '',
                     keyboardSettings: {korean: 'is-korean', english:'is-english', symbols:'is-symbols'},
-                    keyboardType: 'is-korean',
                     keyboardToggle: {korean: "ArrowRight", symbols:"End", english: "ArrowDown"},
+                    keyboardType: 'is-korean',
+                    isShift: false,
                     pressedKeys: [],
                     keyList: { 
                         row1: [
-                            {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1'},
-                            {code: 'KeyW', Korean: 'ㅈ', English: 'w', Symbols: '2'},
-                            {code: 'KeyE', Korean: 'ㄷ', English: 'e', Symbols: '3'},
-                            {code: 'KeyR', Korean: 'ㄱ', English: 'r', Symbols: '4'},
-                            {code: 'KeyT', Korean: 'ㅅ', English: 't', Symbols: '5'},
+                            {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1', Shift: 'ㅃ'},
+                            {code: 'KeyW', Korean: 'ㅈ', English: 'w', Symbols: '2', Shift: 'ㅉ'},
+                            {code: 'KeyE', Korean: 'ㄷ', English: 'e', Symbols: '3', Shift: 'ㄸ'},
+                            {code: 'KeyR', Korean: 'ㄱ', English: 'r', Symbols: '4', Shift: 'ㄲ'},
+                            {code: 'KeyT', Korean: 'ㅅ', English: 't', Symbols: '5', Shift: 'ㅆ'},
                             {code: 'KeyY', Korean: 'ㅛ', English: 'y', Symbols: '6'},
                             {code: 'KeyU', Korean: 'ㅕ', English: 'u', Symbols: '7'},
                             {code: 'KeyI', Korean: 'ㅑ', English: 'i', Symbols: '8'},
-                            {code: 'KeyO', Korean: 'ㅐ', English: 'o', Symbols: '9'},
-                            {code: 'KeyP', Korean: 'ㅔ', English: 'p', Symbols: '0'},
+                            {code: 'KeyO', Korean: 'ㅐ', English: 'o', Symbols: '9', Shift: 'ㅒ'},
+                            {code: 'KeyP', Korean: 'ㅔ', English: 'p', Symbols: '0', Shift: 'ㅖ'},
                         ],
                         row2: [
                             {code: 'KeyA', Korean: 'ㅁ', English: 'a', Symbols: '-'},
@@ -630,12 +652,12 @@
                                     {keyboardRow2}
                                 </div>
                                 <div className="row" id="row3">
-                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>⌂</div>
+                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
                                     {keyboardRow3}
                                     <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
                                 </div>
                                 <div className="row" id="row4">
-                                    <div className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>123</div>
+                                    <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
                                     <div className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>☺️</div>
                                     <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
                                     <div className={this.getKeyClassName(true)} style={{width: "5.5rem"}}>⏎</div>
@@ -657,15 +679,8 @@
             // list 주면 keyboard에서 row 하나를 만들어서 되돌려줌. 한글 or 영어 or 특수문자 출력값도 넣어 주고 className 이나 wrapper 까지 알아서 고려함.
             getKeyboardRow(keyList) {
                 const result = keyList.map((item, index)=>{
-                    if(item.code == 'KeyZ' || item.code == 'KeyM') {
-                            return (
-                                    <div id={item.code + "-wrapper"} style={{display: "inline"}} key={item.code}>
-                                        <div id={item.code} className={this.getKeyClassName(false, item.code)} >{this.getKeyTextVal(item)}</div>
-                                    </div>
-                                    );
-                        } else {
-                            return ( <div id={item.code} className={this.getKeyClassName(false, item.code)} key={item.code} >{this.getKeyTextVal(item)}</div> );
-                        }
+                    
+                        return ( <div id={item.code} className={this.getKeyClassName(false, item.code)} key={item.code} >{this.getKeyTextVal(item)}</div> );
                     });
                 return result;
             }
@@ -686,11 +701,48 @@
                 return cl.join(" ");
             }
 
+            // type 에 따라서 한글/영어/특수문자 되돌려주기
+            getKeyTextVal(item) {
+                let result;
+                if(this.state.isShift && this.state.keyboardType == this.state.keyboardSettings.korean) {   // 한글이면서 shift 누르면
+                    result = item.Shift || item.Korean;
+                } else if(this.state.keyboardType == this.state.keyboardSettings.korean) {     // 그냥 한글이면
+                    result = item.Korean;
+                } else if(this.state.keyboardType == this.state.keyboardSettings.symbols) {     // 특수문자면
+                    result = item.Symbols;
+                } else if(this.state.keyboardType == this.state.keyboardSettings.english) {     // 영어면
+                    result = item.English;
+                } else {
+                    console.log('uncaught keyboard type');
+                    result = 'error';
+                }
+                return result;
+            }
+
+                // |\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/| 키보드 이벤트 |\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|
             // 키보드 누름 이벤트
             keyDownHandler(e) {
                 // keyboard press event handler
                 this.keyboardKeyDownHandler(e);
-                // enter는 상위 컴포넌트로 submit하고 shif+enter는 다음 줄로 넘어가기
+            }
+            
+            // 키보드 뗌 이벤트
+            keyUpHandler(e) {
+                this.keyboardKeyUpHandler(e);
+            }
+            // =================== keyboard event start ======================
+            keyboardKeyDownHandler(e) {
+                console.log(e);
+                this.effectKeyDown(e.code);  // 키 누르면 css 변경
+                this.changeKeyboardType(e.code);   // 문자나 레이아웃 변경
+                this.effectSymbolKeyDown(e);  // 시스템키들 개별 이벤트
+                this.effectShiftKeyDown(e); // 한글 쌍자음 이벤트 - shift 누를 때
+                this.submitContent(e);  // 엔터키 이벤트
+
+            }
+
+            // enter는 상위 컴포넌트로 submit하고 shif+enter는 다음 줄로 넘어가기
+            submitContent(e) {
                 if(e.code=='Enter') {
                     if(e.shiftKey) {
                         // shift + enter 입력했을 때
@@ -702,69 +754,163 @@
                     }
                 }
             }
-            
-            // 키보드 뗌 이벤트
-            keyUpHandler(e) {
-                this.keyboardKeyUpHandler(e);
-            }
-            // =================== keyboard event start ======================
-            keyboardKeyDownHandler(e) {
-                console.log(e);
-                this.effectKeyDown(e.code);  // 키 누르면 css 변경
-                this.changeKeyboard(e.code);   // 문자나 레이아웃 변경
-                this.effectSystemKeyDown(e);  // 시스템키들 개별 이벤트
-                this.effectShiftKeydown(e.code); // 한글 쌍자음 이벤트 - shift 누를 때
+            // 키 뗄 때 이벤트
+            keyboardKeyUpHandler(e) {
+                this.effectKeyUp(e.code);
+                this.effectShiftKeyUp(e);
+                this.effectSymbolKeyUp(e);
             }
 
-            keyboardKeyUpHandler(e) {
+            // 키 뗄 때 css 적용 (class로 css 관리)
+            effectKeyUp(code) {
                 const oldList = this.state.pressedKeys;
                 const newList = oldList.filter((item)=>{ 
-                                    if(item == e.code) {return false;} 
+                                    if(item == code) {return false;} 
                                     else {return true;}
                                 });
                 this.setState({pressedKeys: newList});
             }
-            getKeyTextVal(item) {
-                let result;
-                if(this.state.keyboardType == this.state.keyboardSettings.korean) {
-                    result = item.Korean;
-                } else if(this.state.keyboardType == this.state.keyboardSettings.symbols) {
-                    result = item.Symbols;
-                } else if(this.state.keyboardType == this.state.keyboardSettings.english) {
-                    result = item.English;
-                } else {
-                    console.log('uncaught keyboard type');
-                    result = 'error';
-                }
-                return result;
-            }
 
+            
+            // 키 누를 때 css 적용 (class로 css 관리)
             effectKeyDown(code) {
                 const oldList = this.state.pressedKeys;
                 const newList = [...oldList, code];
                 this.setState({pressedKeys: newList});
+
             }
-            changeKeyboard(code) {
-                if(!code == this.state.keyboardSettings.korean && 
-                !code == this.state.keyboardSettings.english  &&
-                !code == this.state.keyboardSettings.symbols  ) {
+            // 키보드 한글/영어/특수문자 전환
+            changeKeyboardType(code) {
+                const isToggle = (code == this.state.keyboardToggle.korean || 
+                            code == this.state.keyboardToggle.english  || 
+                            code == this.state.keyboardToggle.symbols  );
+                if(isToggle) {
+                    if(this.state.keyboardType == this.state.keyboardSettings.symbols) {
+                        // keyboardType이 특수문자일 경우 키보드 레이아웃 원래대로 되돌리기
+                        this.toggleSymbolsLayout(true);
+                    }
+                } else {
                     // 누른 키가 한영 변환이나 특수문자 변환이 아니면 그대로 끝내기
                     return;
-                } else if(code == this.state.keyboardToggle.korean) {
+                }
+                
+                
+                if(code == this.state.keyboardToggle.korean) {
                     this.setState({keyboardType: this.state.keyboardSettings.korean});
                 } else if(code == this.state.keyboardToggle.english) {
                     this.setState({keyboardType: this.state.keyboardSettings.english});
                 } else if(code == this.state.keyboardToggle.symbols) {
                     this.setState({keyboardType: this.state.keyboardSettings.symbols});
+                    // keyboardType을 특수문자로 바꿀 경우 KeyZ 를 row2로 옮기기
+                    this.toggleSymbolsLayout(false);
                 }
                 
             }
-            effectSystemKeyDown(e) {
-                return 0;
+
+            // 키보드가 특수문자일 경우 레이아웃이 바뀜.
+            toggleSymbolsLayout(flag) {
+                // keyList 전체 복사해 오기 spread syntax 배열이랑 객체 둘 다 가능. [...arr] / {...obj} 
+                const kl = {...this.state.keyList};
+                if(flag) {  // keyboardType이 특수문자일 경우 키보드 레이아웃 원래대로 되돌리기
+                    // row2에서 마지막 요소 꺼내기
+                    const keyZ = kl.row2.pop();
+                    // 배열 row3 에서 0번째 인덱스부터 0개 요소를 제거한 뒤에 그 자리에 keyZ를 넣기
+                    kl.row3.splice(0, 0, keyZ);
+                    // 배열 row3에 요소 하나 추가
+                    kl.row3.push({code: 'KeyM', Korean: 'ㅡ', English: 'm', Symbols: ''});
+                    
+                } else {    // keyboardType을 특수문자로 바꿀 경우 KeyZ 를 row2로 옮기기
+                    // 배열에서 첫 요소 제거 + 반환 (mutating original array)
+                    const relocatingKey = kl.row3.shift();
+                    // 배열에서 마지막 요소 제거 + 반환 (mutating original array)
+                    kl.row3.pop();
+                    // 꺼낸 요소 넣기
+                    kl.row2.push(relocatingKey);
+                }
+                this.setState({keyList:kl});
+            }
+
+            // 특수문자 css 개별 이벤트
+            effectSymbolKeyDown(e) {
+                // 키보드가 특수문자일 경우 경우에만 작동
+                if(!this.state.keyboardType == this.state.keyboardSettings.symbols) {
+                    return;
+                }
+
+                const key = this.getSymbolKeyMapping(e);
+                
+                if(key) {
+                    this.effectKeyDown(key);
+                }
+                return;
 
             }
-            effectShiftKeydown(code) {
-                return 0;
+
+            // 특수문자 css 개별 이벤트
+            effectSymbolKeyUp(e) {
+                // 키보드가 특수문자일 경우 경우에만 작동
+                if(!this.state.keyboardType == this.state.keyboardSettings.symbols) {
+                    return;
+                }
+
+                const key = this.getSymbolKeyMapping(e);
+                
+                if(key) {
+                    this.effectKeyUp(key);
+                }
+                return;
+
+            }
+
+            // 코드는 넣어주면 해당 특수문자키가 어떤 일반키랑 맵핑인지 뱉어줌
+            getSymbolKeyMapping(e) {
+                let key = "";
+
+                // shift 눌러야 하는 특수문자들
+                if(e.shiftKey) {
+                    // ??? 물음표 이벤트
+                    if(e.code == 'Slash') {
+                        key = "KeyV";
+                    }
+                    // !!! 느낌표 이벤트
+                    if(e.code == 'Digit1') { 
+                        key = "KeyB";
+                    }
+                    // """ 쌍따옴표 이벤트
+                    if(e.code == 'Quote') {
+                        key = "KeyZ";
+                    }
+                } else {
+                    // ... 쩜쩜쩜 이벤트
+                    if(e.code == 'Period') {
+                        key = "KeyX";
+                    }
+                    // ,,, 쉼표 이벤트
+                    if(e.code == 'Comma') {
+                        key = "KeyC";
+                    }
+                    // ''' 따옴표 이벤트
+                    if(e.code == 'Quote') {
+                        key = "KeyN";
+                    }
+                }
+                return key;
+            }
+            // 쌍자음 효과 - shift key 누를 때
+            effectShiftKeyDown(e) {
+                if(e.code == 'ShiftLeft') { // 왼쪽 shift키 이벤트
+                    this.setState({isShift: true});
+                    setTimeout(console.log('dd'), 1000);
+                }
+
+                
+            }
+
+            // 쌍자음 효과 - shift key 뗄 때
+            effectShiftKeyUp(e) {
+                if(e.code == 'ShiftLeft') { // 왼쪽 shift키 이벤트
+                    this.setState({isShift: false});
+                }
 
             }
 
