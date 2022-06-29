@@ -395,13 +395,17 @@
         class App extends React.Component {
             constructor(props) {
                 super(props);
+                // 원래 이 컴포넌트 안에서만 실행할 때는 bind를 굳이 안 해줘도 되는데, 
+                // lifecycle 함수에서 쓸 때는 외부로 넘어가나 보네. componentDidMount 같은 거
+                this.setAppTime = this.setAppTime.bind(this);
                 this.state = {
                     chatHeight: 0,
+                    appTime: new Date().getTime(),
                     chatList: [
-                            {isMyChat:1, contents:'당근이세요?'},
-                            {isMyChat:0, contents:'네 안녕하세요'},
-                            {isMyChat:1, contents:'혹시 교통비만 빼주실 수 있을까요 ㅠㅠㅠ'},
-                            {isMyChat:0, contents:'ㅈㅅ....'},
+                            {isMyChat:1, contents:'당근이세요?', chatTime: '오후 1:21'},
+                            {isMyChat:0, contents:'네 안녕하세요', chatTime: '오후 1:23'},
+                            {isMyChat:1, contents:'혹시 교통비만 빼주실 수 있을까요 ㅠㅠㅠ', chatTime: '오후 1:25'},
+                            {isMyChat:0, contents:'ㅈㅅ....', chatTime: '오후 1:28'},
                         ]
                 }
 
@@ -414,16 +418,16 @@
                             <FriendsInput inputHandler={this.setChatList} />
                         </div>
                         <div className="container">
-                            <KakaoHeader />
+                            <KakaoHeader appTime={this.state.appTime} />
                             <KakaoChat chatList={this.state.chatList} chatHeight={this.state.chatHeight} />
-                            <KakaoSpeak inputHandler={this.setChatList} />
+                            <KakaoSpeak inputHandler={this.setChatList} appTime={this.state.appTime} />
                         </div>
                     </div>
                 );
             }
 
-            setChatList(isMyChat, contents) {   // isMyChat: 내 말풍선인지 친구 말풍선인지 구분자 / contents: 말풍선 내용
-                const newItem = {isMyChat: isMyChat, contents: contents};
+            setChatList(isMyChat, contents, chatTime) {   // isMyChat: 내 말풍선인지 친구 말풍선인지 구분자 / contents: 말풍선 내용
+                const newItem = {isMyChat: isMyChat, contents: contents, chatTime: chatTime};
                 const oldList = this.state.chatList;
                 const newList = [...oldList, newItem];
                 this.setState({
@@ -432,6 +436,7 @@
                 this.setHeightsOfComponents();
             }
 
+            // chat container 컴포넌트를 제외한 모든 컴포넌트들의 높이를 구해서 전체 컴포넌트 높이에서 빼고 난 남은 높이.
             setHeightsOfComponents() {
                 const c = parseInt(document.querySelector('div.container').offsetHeight);
                 const h = parseInt(document.querySelector('header').offsetHeight);
@@ -440,10 +445,21 @@
                 this.setState({chatHeight: (c-h-s-k)});
             }
             
+            setAppTime() {
+                this.setState({appTime: new Date().getTime()});
+            }
+
+            // lifeCycle : 마운트 되기 전에
             componentDidMount() {
                 this.setHeightsOfComponents();
+                this.timerID = setInterval(this.setAppTime,  20000);
             }
-            // TODO: 시간도 header랑 char-container 두 군데에서만 들고 있으면 됨. keyboard나 speak에서는 필요 없음. 시간은 App에서 관리. 1분마다 reload
+
+            // lifeCycle : 마운트 해제하기 전에
+            componentWillUnmount() {
+                // 삭제할 때는 인터벌 지워주기
+                clearInterval(this.timerID);
+            }
         }
 
         class FriendsInput extends React.Component {
@@ -488,7 +504,6 @@
             constructor(props) {
                 super(props);
                 this.state = {
-                    phoneTime: '10:36',
                     unreadChat: 27,
                     chatRoomName: 'Hello My Friend!'
                 }
@@ -497,7 +512,7 @@
                 return (
                     <header>
                         <div className="device-info">
-                            <span name="phoneTime">{this.state.phoneTime}</span>
+                            <span name="phoneTime">{this.getHeaderTime()}</span>
                             <span>
                                 <span><img src="img/signal.png" /></span>
                                 <span><img src="img/wifi.png" /></span>
@@ -515,6 +530,17 @@
                     </header>
                 );
             }
+
+            getHeaderTime() {
+                const t = new Date(this.props.appTime);
+                const h = t.getHours() < 13 ? t.getHours() : t.getHours()-12;
+                const m = t.getMinutes() > 9 ? t.getMinutes() : '0' + t.getMinutes();
+                // const n = t.getHours() < 12 ? '오전' : '오후';
+                // template literal: "`" 로 감싸고, 그 안에 "${변수명}" 넣으면 변수 값이 그대로 출력
+                const time = `${h}:${m}`;
+                return time;
+            }
+
         }
 
 
@@ -522,7 +548,6 @@
             constructor(props) {
                 super(props);
                 this.state = {
-                    chatTime: '오후 5:19',
                     friendsName: "내 친구"
                 }
 
@@ -537,7 +562,7 @@
                                 <span className="chat-contents-wrapper">
                                     <div className="chat-box">
                                         <span className="chat-time" name="chatTime">
-                                            {this.state.chatTime}
+                                            {item.chatTime}
                                         </span>
                                         <span className="my-chat-msg">
                                             {item.contents}
@@ -559,7 +584,7 @@
                                             {item.contents}
                                         </span>
                                         <span className="chat-time" name="chatTime">
-                                            {this.state.chatTime}
+                                            {item.chatTime}
                                         </span>
                                     </div>
                                 </span>
@@ -738,6 +763,17 @@
                 return result;
             }
 
+            // 말풍선 옆에 붙을 시간 형식으로 바꿔주기
+            chatTimeFormatter(t) {
+                const h = t.getHours() < 13 ? t.getHours() : t.getHours()-12;
+                const m = t.getMinutes();
+                const n = t.getHours() < 12 ? '오전' : '오후';
+                // template literal: "`" 로 감싸고, 그 안에 "${변수명}" 넣으면 변수 값이 그대로 출력
+                const time = `${n} ${h}:${m}`;
+                // state 로 들고 있으면 이걸 참조하는 말풍선들은 시간이 지날 때마다 함께 업데이트 되고, 결국 모든 말풍선이 같은 시각을 가르키게 됨.
+                return time;
+            }
+
                 // |\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/| 키보드 이벤트 |\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|/\|
             // 키보드 누름 이벤트
             keyDownHandler(e) {
@@ -768,11 +804,18 @@
                         console.log('next line');
                         // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
                     } else {
-                        this.props.inputHandler(1, this.state.contents);
+                        // props 를 그대로 참조하면 그 props를 넣어주는 상위 컴포넌트에서 state가 바뀔 때마다 그 값을 참조하고 있는 다른 요소들도 값이 함께 바뀌게 됨.
+                        // 즉 모든 말풍선이 같은 시각을 가르키게 됨.
+                        // 따라서 Date 객체가 state와는 별개의 객체로 존재해야 함.
+                        // 따라서 app에서 들고 있는 state 는 UTC 타임만 들고 있고, 다른 데에서 사용할 때는 그 UTC를 파라미터로 넣은 새로운 Date 객체를 매번 따로 만들어서 사용하기.
+                        const t = new Date(this.props.appTime);
+                        const time = this.chatTimeFormatter(t);
+                        this.props.inputHandler(1, this.state.contents, time);
                         this.setState({contents: ''});
                     }
                 }
             }
+
 
             // 키 뗄 때 이벤트
             keyboardKeyUpHandler(e) {
