@@ -279,7 +279,7 @@
         #keyboard.is-symbols #ShiftLeft {
             font-size: 0.8rem;
         }
-        
+
         /* 특수문자일 경우 123키 */
         #keyboard.is-symbols #ToggleKeyboard {
             font-size: 0.8rem;
@@ -396,6 +396,7 @@
             constructor(props) {
                 super(props);
                 this.state = {
+                    chatHeight: 0,
                     chatList: [
                             {isMyChat:1, contents:'당근이세요?'},
                             {isMyChat:0, contents:'네 안녕하세요'},
@@ -414,7 +415,7 @@
                         </div>
                         <div className="container">
                             <KakaoHeader />
-                            <KakaoChat chatList={this.state.chatList} />
+                            <KakaoChat chatList={this.state.chatList} chatHeight={this.state.chatHeight} />
                             <KakaoSpeak inputHandler={this.setChatList} />
                         </div>
                     </div>
@@ -428,6 +429,19 @@
                 this.setState({
                     chatList: newList
                 });
+                this.setHeightsOfComponents();
+            }
+
+            setHeightsOfComponents() {
+                const c = parseInt(document.querySelector('div.container').offsetHeight);
+                const h = parseInt(document.querySelector('header').offsetHeight);
+                const s = parseInt(document.querySelector('section.speak').offsetHeight);
+                const k = parseInt(document.querySelector('section.keyboard-container').offsetHeight);
+                this.setState({chatHeight: (c-h-s-k)});
+            }
+            
+            componentDidMount() {
+                this.setHeightsOfComponents();
             }
             // TODO: 시간도 header랑 char-container 두 군데에서만 들고 있으면 됨. keyboard나 speak에서는 필요 없음. 시간은 App에서 관리. 1분마다 reload
         }
@@ -556,7 +570,7 @@
                 
                 });
                 return (
-                    <section className="chat-container">
+                    <section className="chat-container" style={{height:this.props.chatHeight}}>
                         {renderList}
                     </section>
                 );
@@ -679,18 +693,22 @@
             // list 주면 keyboard에서 row 하나를 만들어서 되돌려줌. 한글 or 영어 or 특수문자 출력값도 넣어 주고 className 이나 wrapper 까지 알아서 고려함.
             getKeyboardRow(keyList) {
                 const result = keyList.map((item, index)=>{
-                    
                         return ( <div id={item.code} className={this.getKeyClassName(false, item.code)} key={item.code} >{this.getKeyTextVal(item)}</div> );
                     });
+
                 return result;
             }
 
             // keyboard에서 key 요소들 만들 때 className 만들어서 되돌려주기
             getKeyClassName(isSystemKey,code) {
-                const cl = ['key']
+                const cl = ['key'];
+                
+                // 시스템키일 경우 systemkey 클래스 추가
                 if(isSystemKey) {
                     cl.push('systemkey');
                 }
+
+                // 눌려 있는 키들 css 적용 클래스 추가
                 if(this.state.pressedKeys.includes(code)) {
                     if(isSystemKey) {
                         cl.push('systemkeyPress');
@@ -698,6 +716,7 @@
                         cl.push('keyPress');
                     }
                 }
+
                 return cl.join(" ");
             }
 
@@ -754,6 +773,7 @@
                     }
                 }
             }
+
             // 키 뗄 때 이벤트
             keyboardKeyUpHandler(e) {
                 this.effectKeyUp(e.code);
@@ -779,6 +799,7 @@
                 this.setState({pressedKeys: newList});
 
             }
+
             // 키보드 한글/영어/특수문자 전환
             changeKeyboardType(code) {
                 const isToggle = (code == this.state.keyboardToggle.korean || 
@@ -786,7 +807,7 @@
                             code == this.state.keyboardToggle.symbols  );
                 if(isToggle) {
                     if(this.state.keyboardType == this.state.keyboardSettings.symbols) {
-                        // keyboardType이 특수문자일 경우 키보드 레이아웃 원래대로 되돌리기
+                        // keyboardType이 이미 특수문자일 경우 키보드 레이아웃 원래대로 되돌리기
                         this.toggleSymbolsLayout(true);
                     }
                 } else {
@@ -794,7 +815,7 @@
                     return;
                 }
                 
-                
+                // toggle 키에 따라서 keyboard type 바꿔주기
                 if(code == this.state.keyboardToggle.korean) {
                     this.setState({keyboardType: this.state.keyboardSettings.korean});
                 } else if(code == this.state.keyboardToggle.english) {
