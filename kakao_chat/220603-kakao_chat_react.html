@@ -50,6 +50,7 @@
             height: 800px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             background-color: #afc0cf;
 
             /* remove later */
@@ -101,7 +102,14 @@
         .chat-container {
             display: flex;
             flex-direction: column;
+            overflow-y: scroll; /*  말풍선이 많아져서 컨테이너를 넘쳤을 경우 스크롤해서 보여주기 */
         }
+
+        /* 카톡방 대화창 전체 스크롤바 CS*/
+        .chat-container::-webkit-scrollbar {
+            display: none;
+        } 
+
 
         /*  내 말풍선 전체 컨테이너     */
         .my-chat-container {
@@ -183,7 +191,7 @@
 
         /* TODO : 푸터 하단 고정 / header랑 container 높이를 %로 고정하면 되긴 하는데 다이나믹하게 할 수 있는 방법 없나 */
         .speak {
-            margin: 0.5rem 0rem 0rem 0rem;
+            margin: 0rem 0rem 0rem 0rem;
 
         }
 
@@ -310,16 +318,22 @@
 
 
 <!--     
+    // TODO:
+        1) css 정교하게 맞추기
+            > 아이템 / 아이콘 크기 맞추기
+            > 채팅 입력창 textarea scroll 적용
+            > 말풍선 시간이 같을 때만 시간 표시 생략 + 상대방 프사 생략
+
     // TODO: 
-        1) chat container 높이 맞추기   
+        **1) chat container 높이 맞추기   
             > App 컴포넌트에서 각 하위 컴포넌트들의 높이를 있어야 할 듯. 
             > 속성으로 넣어줄 때는 끝에 'px' 붙이는 거 잊지 않긔
-        2) time 동기화하기
+        **2) time 동기화하기
             > header 에 출력되는 device 시간이랑 chat input 되는 시간이랑 동기화하기
             > App 컴포넌트에서 시간을 들고 있고 하위 컴포넌트들에서는 받아다 쓰면 될 듯
-        3) 키보드에 이벤트 마저 걸어주기
+        **3) 키보드에 이벤트 마저 걸어주기
             **> 일반키 누르는 효과 CSS 적용하기 : 눌려 있는 키는 해당 컴포넌트가 state 로 들고 있기, 떼면 사라지고.
-            > 특수문자키 키 누르는 CSS 효과 적용하기 : 물음표나 ... 같은 것들, 실제 key 위치랑 다를 경우
+            **> 특수문자키 키 누르는 CSS 효과 적용하기 : 물음표나 ... 같은 것들, 실제 key 위치랑 다를 경우
             **> shift key 눌렀을 때 이벤트 : 쌍자음 + 특수문자 변경
             **> 특수문자로 전환했을 때 row layout 바뀌는 거 구현 
                 +)  컴포넌트가 들고 있는 state에서 key list 내용물을 바꾸기 
@@ -399,7 +413,6 @@
                 // lifecycle 함수에서 쓸 때는 외부로 넘어가나 보네. componentDidMount 같은 거
                 this.setAppTime = this.setAppTime.bind(this);
                 this.state = {
-                    chatHeight: 0,
                     appTime: new Date().getTime(),
                     chatList: [
                             {isMyChat:1, contents:'당근이세요?', chatTime: '오후 1:21'},
@@ -419,7 +432,7 @@
                         </div>
                         <div className="container">
                             <KakaoHeader appTime={this.state.appTime} />
-                            <KakaoChat chatList={this.state.chatList} chatHeight={this.state.chatHeight} />
+                            <KakaoChat chatList={this.state.chatList} />
                             <KakaoSpeak inputHandler={this.setChatList} appTime={this.state.appTime} />
                         </div>
                     </div>
@@ -433,16 +446,6 @@
                 this.setState({
                     chatList: newList
                 });
-                this.setHeightsOfComponents();
-            }
-
-            // chat container 컴포넌트를 제외한 모든 컴포넌트들의 높이를 구해서 전체 컴포넌트 높이에서 빼고 난 남은 높이.
-            setHeightsOfComponents() {
-                const c = parseInt(document.querySelector('div.container').offsetHeight);
-                const h = parseInt(document.querySelector('header').offsetHeight);
-                const s = parseInt(document.querySelector('section.speak').offsetHeight);
-                const k = parseInt(document.querySelector('section.keyboard-container').offsetHeight);
-                this.setState({chatHeight: (c-h-s-k)});
             }
             
             setAppTime() {
@@ -451,7 +454,6 @@
 
             // lifeCycle : 마운트 되기 전에
             componentDidMount() {
-                this.setHeightsOfComponents();
                 this.timerID = setInterval(this.setAppTime,  20000);
             }
 
@@ -554,6 +556,7 @@
             }
             render() {
                 const items = this.props.chatList;
+                // 상위 컴포넌트에서 말풍선 목록을 받아와서 내용을 하나씩 꺼내면서 요소를 생성하기
                 const renderList = items.map((item, index)=> { 
                     let result; 
                     if(item.isMyChat) {
@@ -595,7 +598,7 @@
                 
                 });
                 return (
-                    <section className="chat-container" style={{height:this.props.chatHeight}}>
+                    <section className="chat-container" >
                         {renderList}
                     </section>
                 );
@@ -713,6 +716,8 @@
                 this.setState({
                     contents: e.target.value
                 });
+                // 입력하는 내용이 textarea 입력창을 넘어간 상태라면 스크롤창을 가장 아래로 내리기
+                e.target.scrollTop = e.target.scrollHeight;
             }
 
             // list 주면 keyboard에서 row 하나를 만들어서 되돌려줌. 한글 or 영어 or 특수문자 출력값도 넣어 주고 className 이나 wrapper 까지 알아서 고려함.
