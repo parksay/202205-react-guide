@@ -425,6 +425,12 @@
                         ]
                 }
 
+                // 컴포넌트 접근
+                this.header = React.createRef();
+                this.speak = React.createRef();
+                this.outer = React.createRef();
+
+                // 함수 바인딩
                 this.setChatList = this.setChatList.bind(this);
             }
             render() {
@@ -433,15 +439,16 @@
                         <div>
                             <FriendsInput inputHandler={this.setChatList}  appTime={this.state.appTime} />
                         </div>
-                        <div className="container">
-                            <KakaoHeader appTime={this.state.appTime} />
-                            <KakaoChat chatList={this.state.chatList} />
-                            <KakaoSpeak inputHandler={this.setChatList} appTime={this.state.appTime} />
+                        <div className="container" ref={this.outer}>
+                            <KakaoHeader appTime={this.state.appTime} ref={this.header} />
+                            <KakaoChat chatList={this.state.chatList} chatContainerHeight={this.state.chatContainerHeight} />
+                            <KakaoSpeak inputHandler={this.setChatList} appTime={this.state.appTime} ref={this.speak} />
                         </div>
                     </div>
                 );
             }
 
+            // 말풍선은 이쪽 컴포넌트 저쪽 컴포넌트 여기저기서 쓰기 때문에 앱 전체에서 들고 있기
             setChatList(isMyChat, contents, chatTime) {   // isMyChat: 내 말풍선인지 친구 말풍선인지 구분자 / contents: 말풍선 내용
                 const newItem = {isMyChat: isMyChat, contents: contents, chatTime: chatTime};
                 const oldList = this.state.chatList;
@@ -451,12 +458,33 @@
                 });
             }
             
+            setChatContainerHeight() {
+                // React this 객체에 접근
+                // this 
+                // this에 header라는 속성 이름으로 저장해 두었던 속성 값에 접근 / 그 안에는 header 컴포넌트를 ref로 할당해 두었음.
+                // this.header
+                // header 라는 ref의 current 속성에 접근 / 이건 정확히 뭔진 모르겠지만 일단 구조가 그렇게 돼 있었음
+                // this.header.current
+                // header 라는 ref로 접근하면 이 header 컴포넌트에 접근할 수 있는데, 다시 이 header 컴포넌트는 outer라는 속성 이름으로 어떤 ref를 만들어 두었음. 그리고 이 outer라는 ref 안에는 HTML DOM 요소를 할당해 두었음.
+                // this.header.current.outer
+                // header 컴포넌트가 outer라는 이름으로 할당해 두었던 ref에 접근해서, 그 안에 있는 HTML DOM 요소에 접근하기 위해 current 속성에 접근. 마찬가지로, 그냥 구조가 그렇게 돼 있길래 이렇게 접근.
+                // this.header.current.outer.current
+                // 이제 HTML DOM 요소까지 접근했음. DOM 요소가 갖는 속성값들 마음대로 써도 됨.
+                // this.header.current.outer.current.tagName / claaList / offsetHeight....
+                const h = this.outer.current.clientHeight - this.header.current.outer.current.offsetHeight - this.speak.current.outer.current.offsetHeight;
+                this.setState({chatContainerHeight: h})
+
+            }
+
+            // 앱 전체에서 공유할 시간 설정하기
             setAppTime() {
                 this.setState({appTime: new Date().getTime()});
             }
 
             // lifeCycle : 마운트 되기 전에
             componentDidMount() {
+                this.setChatContainerHeight();
+                // 마운트되면서 시간 설정하고 20초마다 업데이트하기
                 this.timerID = setInterval(this.setAppTime,  20000);
             }
 
@@ -511,7 +539,7 @@
                                 value={this.state.contents} 
                                 onInput={this.inputContents} 
                                 onKeyDown={this.enterContents} 
-                                style={{boder:"solid black 1px"}} 
+                                style={{boder:"solid black 1px", margin:"0rem 2rem"}} 
                                 placeholder="친구 입장에서 메세지 보내기"
                             ></textarea> );
             }
@@ -525,10 +553,13 @@
                     unreadChat: 27,
                     chatRoomName: 'Hello My Friend!'
                 }
+
+                // outer라는 속성 이름으로 ref를 만들겠다 / 밑에서 이 outer 에 담고 싶은 엘리먼트를 할당해주면 됨.
+                this.outer = React.createRef();
             }
             render() {
                 return (
-                    <header>
+                    <header ref={this.outer} >
                         <div className="device-info">
                             <span name="phoneTime">{this.getHeaderTime()}</span>
                             <span>
@@ -622,7 +653,7 @@
                 
                 });
                 return (
-                    <section className="chat-container" ref={this.outer}>
+                    <section className="chat-container" ref={this.outer} style={{height: this.props.chatContainerHeight}}>
                         {renderList}
                     </section>
                 );
@@ -638,6 +669,9 @@
                 this.inputContents = this.inputContents.bind(this);
                 this.keyDownHandler = this.keyDownHandler.bind(this);
                 this.keyUpHandler = this.keyUpHandler.bind(this);
+
+                // outer 라는 속성 이름으로 ref를 만들겠다
+                this.outer = React.createRef();
 
                 this.state = {
                     contents: '',
@@ -691,7 +725,7 @@
                 const keyboardRow3 = this.getKeyboardRow(this.state.keyList.row3);
 
                 return (
-                    <div>
+                    <div ref={this.outer} >
 
                         <section className="speak">
                             <div className="speak-container">
