@@ -114,12 +114,14 @@
         /*  내 말풍선 전체 컨테이너     */
         .my-chat-container {
             align-self: flex-end;
+            margin-bottom: 0.2rem;
         }
 
 
         /* 상대방 말풍선 전체 컨테이너 */
         .your-chat-wrapper {
             align-self: flex-start;
+            margin-bottom: 0.2rem;
 
             display: flex;
             align-items: center;
@@ -323,6 +325,7 @@
             > 아이템 / 아이콘 크기 맞추기
             > 채팅 입력창 textarea scroll 적용
             > 말풍선 시간이 같을 때만 시간 표시 생략 + 상대방 프사 생략
+            > textarea 내용 있을 경우 보내기 버튼으로 바뀜
 
     // TODO: 
         **1) chat container 높이 맞추기   
@@ -428,7 +431,7 @@
                 return (
                     <div style={{display:"flex", flexDirection:"row", alignItems:"center"}}>
                         <div>
-                            <FriendsInput inputHandler={this.setChatList} />
+                            <FriendsInput inputHandler={this.setChatList}  appTime={this.state.appTime} />
                         </div>
                         <div className="container">
                             <KakaoHeader appTime={this.state.appTime} />
@@ -484,10 +487,23 @@
                         console.log('next line');
                         // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
                     } else {
-                        this.props.inputHandler(0, this.state.contents);
+                        const t = new Date(this.props.appTime);
+                        const time = this.chatTimeFormatter(t);
+                        this.props.inputHandler(0, this.state.contents, time);
                         this.setState({contents: ''});
                     }
                 }
+            }
+
+            // 말풍선 옆에 붙을 시간 형식으로 바꿔주기
+            chatTimeFormatter(t) {
+                const h = t.getHours() < 13 ? t.getHours() : t.getHours()-12;
+                const m = t.getMinutes();
+                const n = t.getHours() < 12 ? '오전' : '오후';
+                // template literal: "`" 로 감싸고, 그 안에 "${변수명}" 넣으면 변수 값이 그대로 출력
+                const time = `${n} ${h}:${m}`;
+                // state 로 들고 있으면 이걸 참조하는 말풍선들은 시간이 지날 때마다 함께 업데이트 되고, 결국 모든 말풍선이 같은 시각을 가르키게 됨.
+                return time;
             }
 
             render() {
@@ -552,6 +568,14 @@
                 this.state = {
                     friendsName: "내 친구"
                 }
+                // outer 라는 속성 이름으로 ref를 넣겠다.
+                this.outer = React.createRef();
+            }
+
+            // lifecycle : 컴포넌트가 업데이트될 때
+            componentDidUpdate() {
+                // 엘리먼트를 생성할 때 outer라는 이름으로 넣어 두었던 ref를 꺼내오기
+                this.outer.current.scrollTop = this.outer.current.scrollHeight
 
             }
             render() {
@@ -598,7 +622,7 @@
                 
                 });
                 return (
-                    <section className="chat-container" >
+                    <section className="chat-container" ref={this.outer}>
                         {renderList}
                     </section>
                 );
