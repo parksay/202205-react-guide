@@ -12,15 +12,11 @@
         /* 카카오 채팅창 css */
 
         :root { 
-            font-size: 16px;
-            /* 말풍선 전체 컨테이너 마진 */
-            --chat-container-margin: 0.0rem 0.0rem 0.5rem 0.0rem;
-            /* 상대방 프로필 이미지 굴곡 */
-            --profile-img-radius: 1.5rem;
+            font-size: 12px;
             /* 아이디 + 대화 텍스트 + 시간 컨테이너 마진        */
             --chat-contents-wrapper-margin: 0rem 0.6rem;
             /* 대화 텍스트 + 시간 컨테이너 높이 */
-            --chat-box-basis: 3rem;
+            --chat-box-basis: 2.5rem;
             /* 대화 시간 + 상대방 아이디 텍스트 컬러 */
             --chat-info-color: #555c62;
             /* 대화 시간 마진 */
@@ -68,7 +64,6 @@
         }
 
         /* 스마트폰 정보 아이콘 + 카톡방 검색 and 햄버거 메뉴 아이콘 */
-        /* TODO: 높이 중앙 정렬 */
         header img {
             width: 1.5rem;
             height: auto;
@@ -79,17 +74,21 @@
         .device-info {
             align-items: center;
             margin: 0rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 800;
         }
 
         /* 상단 스마트폰 상태창 아이콘 */
         .device-info img {
-            margin: 0rem 0.15rem;
+            margin: 0rem 0.2rem;
         }
 
         /* 상단 카톡방 정보창 */
         .chat-info {
             margin: 0rem 1rem;
             align-items: center;
+            font-size: 1.3rem;
+            font-weight: 800;
         }
 
         /* 상단 카톡방 정보창 아이콘 이미지 랩퍼 */
@@ -116,7 +115,7 @@
         .my-chat-container {
             align-self: flex-end;
             margin-bottom: 0.2rem;
-            margin: var(--chat-container-margin);
+            margin: 0.0rem 0.0rem 0.5rem 0.0rem;
         }
 
 
@@ -125,9 +124,16 @@
             align-self: flex-start;
             display: flex;
             align-items: center;
-            margin: var(--chat-container-margin);
         }
 
+        /* 상대방 첫 번째 말풍선이 아니라면 상대방 프로필 이미지만큼 마진 */
+        .your-chat-wrapper.first-chat {
+            margin: 0rem 0rem 0.5rem 0.6rem;
+        }
+        .your-chat-wrapper {
+            /* 왼쪽 마진 : 상대방 프로필 사진 너비 + first-chat 왼쪽 마진 */
+            margin: 0rem 0rem 0.5rem 3.6rem;
+        }
         /* 상대방 말풍선 묶음들 안에서 첫 번째 말풍선이 아니라면 프로필 사진과 친구 이름 숨기기*/
         .your-chat-wrapper span.profile-img-wrapper {
             display:none;
@@ -145,9 +151,9 @@
 
         /* 상대방 프로필 이미지 */
         .your-profile-img {
-            width: 4rem;
+            width: 3rem;
             height: auto;
-            border-radius: var(--profile-img-radius);
+            border-radius: 1.2rem;
         }
 
 
@@ -210,10 +216,8 @@
             
         }
 
-        /* TODO : 푸터 하단 고정 / header랑 container 높이를 %로 고정하면 되긴 하는데 다이나믹하게 할 수 있는 방법 없나 */
         .speak {
             margin: 0rem 0rem 0rem 0rem;
-
         }
 
         /* 푸터 최상위 컨테이너 */
@@ -233,7 +237,7 @@
         .speak textarea {
             background-color: transparent;
             border: none;
-            width: 70%;
+            width: 72%;
             overflow-y: scroll; 
             resize: none;   /* textarea 우측 하단 사이즈 조절 버튼 삭제 */
             outline: none;  /* textarea에 내용을 입력하는 동안, 즉 focus 된 동안 강조 테두리 제거 */
@@ -249,7 +253,7 @@
 
         /* 푸터 사진 추가 + 이모티콘 + 해시태그 아이콘 이미지 */
         .speak img {
-            width: 1rem;
+            width: 1.5rem;
             height: auto;
             margin: 0rem 0.3rem;
         }
@@ -264,7 +268,7 @@
             border-radius: 1px;
             background-color: #d5d7dd;
             padding: 5px 2px;
-            height: 12rem;
+            height: 16rem;
             font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Arial, Helvetica, sans-serif;
             display: flex;
             flex-direction: column;
@@ -277,31 +281,32 @@
             flex-direction: row;
             justify-content: space-between;
             align-content: center;
-            margin: 0rem 0.2rem;
+            margin: 0rem 0.3rem;
         }
 
         /* 한글/영어일 때 */
         #row2 {
-            margin: 0rem 1.5rem 0rem 1.5rem;
+            margin: 0rem 1.7rem;
         }
 
         /* 특수문자일 때 */
         #keyboard.is-symbols #row2 {
-            margin: 0rem 0.2rem 0rem 0.2rem;
+            margin: 0rem 0.3rem;
         }
         /* 특수문자일 때 */
         #keyboard.is-symbols #row3 > .key{
-            width: 3rem;
+            width: 4rem;
         }
 
         .key {
             background-color: #fefefe;
             -webkit-box-shadow: rgb(106, 106, 106) 0px 1px 1px 0px;
-            height: 2.6rem;
-            line-height: 2.8rem;
-            font-size: 1.2rem;
+            height: 3.3rem;
+            line-height: 3.3rem;
+            font-size: 1.5rem;
+            font-weight: 540;
             border-radius: 7px;
-            width: 2.2rem;
+            width: 2.9rem;
             text-align: center;
             font-family: Helvetica;
             color: #000000;
@@ -349,76 +354,8 @@
 <!--     
     // TODO:
         1) css 정교하게 맞추기
-            > 아이템 / 아이콘 크기 맞추기
-            **> 채팅 입력창 textarea scroll 적용
-            **> 말풍선 시간이 같을 때만 시간 표시 생략 + 상대방 프사 생략
             > textarea 내용 있을 경우 보내기 버튼으로 바뀜
-
-    // TODO: 
-        **1) chat container 높이 맞추기   
-            > App 컴포넌트에서 각 하위 컴포넌트들의 높이를 있어야 할 듯. 
-            > 속성으로 넣어줄 때는 끝에 'px' 붙이는 거 잊지 않긔
-        **2) time 동기화하기
-            > header 에 출력되는 device 시간이랑 chat input 되는 시간이랑 동기화하기
-            > App 컴포넌트에서 시간을 들고 있고 하위 컴포넌트들에서는 받아다 쓰면 될 듯
-        **3) 키보드에 이벤트 마저 걸어주기
-            **> 일반키 누르는 효과 CSS 적용하기 : 눌려 있는 키는 해당 컴포넌트가 state 로 들고 있기, 떼면 사라지고.
-            **> 특수문자키 키 누르는 CSS 효과 적용하기 : 물음표나 ... 같은 것들, 실제 key 위치랑 다를 경우
-            **> shift key 눌렀을 때 이벤트 : 쌍자음 + 특수문자 변경
-            **> 특수문자로 전환했을 때 row layout 바뀌는 거 구현 
-                +)  컴포넌트가 들고 있는 state에서 key list 내용물을 바꾸기 
-                +) 이게 바로 리액트적인 사고. 해당 요소에 접근해서 자리를 저기로 옮기고, 속성을 저렇게 바꾸고, 그게 js적인 사고.
-                +) 상황에 따라서 동적으로 변하는 데이터들을 어떻게 컴포넌트 차원에서 들고 있으면서 관리할 수 있을까.
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const h1 = document.querySelector('header').offsetHeight;
-            const h2 = document.querySelector('section.keyboard-container').offsetHeight;
-            const h3 = document.querySelector('div.container').offsetHeight;
-            document.querySelector('section.chat-container').style.height = (h3-h1-h2)+'px';
-        })
-
-
-        // time formatter
-        function timeFormatter(param, type) {
-            const d = new Date(param);        //파라미터로 전달 받은 날짜를 가지고 새로운 Date 자료형 변수를 만든다.
-            const h = d.getHours();     //시를 받아온다.
-            const m = d.getMinutes().length < 2 ? '0' + d.getMinutes() : d.getMinutes();   //분을 받아온다
-            const n = h < 12 ? '오전' : '오후';      //구분을 받아온다.
-            let result = '';
-            if(type=='1') {
-                result = `${n} ${h}:${m}`;    //JavaScript 새로운 문법 => Template Literals
-            } else if (type=='2'){
-                result =  `${h}:${m}`;  
-            }
-            return result;   
-        }
-
-        // set the chat time
-        const chatTimeEleList = document.querySelectorAll('[name="chatTime"]');
-        chatTimeEleList.forEach(function(item, index) {
-            const now = new Date();
-            const time = timeFormatter(now, 1);
-            item.innerText = time;
-        });
-        
-        // set the phone time
-        const phoneTimeEleList = document.querySelectorAll('[name="phoneTime"]');
-        phoneTimeEleList.forEach(function(item, index) {
-            const now = new Date();
-            const time = timeFormatter(now, 2);
-            item.innerText = time;
-        });
-
-        // set event to footer input textarea auto height
-        const ta = document.querySelector('textarea');
-        ta.addEventListener('input', function() {
-            if(ta.scrollHeight > ta.offsetHeight) {
-                ta.style.height= ta.scrollHeight + 'px';
-            }
-        })
-
-    </script> -->
+-->
 
     
     
@@ -640,7 +577,7 @@
                             <span>
                                 <span><img src="img/signal.png" /></span>
                                 <span><img src="img/wifi.png" /></span>
-                                <span><img src="img/battery.png" /></span>
+                                <span><img src="img/battery.png" style={{position:'relative', top:'1px'}}/></span>
                             </span>
                         </div>
                         <div className="chat-info">
@@ -853,15 +790,15 @@
                                     {keyboardRow2}
                                 </div>
                                 <div className="row" id="row3">
-                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "2.5rem", margin: "0rem 0.5rem 0rem 0rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
+                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "3.5rem", margin: "0rem 1rem 0rem 0rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
                                     {keyboardRow3}
-                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "2.5rem",  margin: "0rem 0rem 0rem 0.5rem"}}>⌫</div>
+                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "3.5rem",  margin: "0rem 0rem 0rem 1rem"}}>⌫</div>
                                 </div>
                                 <div className="row" id="row4">
-                                    <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "2.5rem"}}>☺️</div>
-                                    <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "12.5rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "5.5rem"}}>⏎</div>
+                                    <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "3.5rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "3.5rem"}}>☺️</div>
+                                    <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "16rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "7.5rem"}}>⏎</div>
                                 </div>
                             </div>
                         </section>
