@@ -281,12 +281,15 @@
             flex-direction: row;
             justify-content: space-between;
             align-content: center;
-            margin: 0rem 0.3rem;
+            margin: 0% 1%;
         }
 
         /* 한글/영어일 때 */
         #row2 {
-            margin: 0rem 1.7rem;
+            margin: 0 5%;
+        }
+        #row2 > .key {
+            width: 9.7%;
         }
 
         /* 특수문자일 때 */
@@ -301,12 +304,12 @@
         .key {
             background-color: #fefefe;
             -webkit-box-shadow: rgb(106, 106, 106) 0px 1px 1px 0px;
-            height: 3.3rem;
+            height: 100%;
             line-height: 3.3rem;
             font-size: 1.5rem;
             font-weight: 540;
             border-radius: 7px;
-            width: 2.9rem;
+            width: 9%;
             text-align: center;
             font-family: Helvetica;
             color: #000000;
@@ -354,8 +357,12 @@
 <!--     
     // TODO:
         1) css 정교하게 맞추기
-            > textarea 내용 있을 경우 보내기 버튼으로 바뀜
--->
+            > 말풍선 max width 맞추기
+            > 키보드 시스템키 문자 맞추기 폰트 없으면 사진으로
+        2) textarea 내용 있을 경우 보내기 버튼으로 바뀜
+        3) textarea 높이
+
+    -->
 
     
     
@@ -704,7 +711,7 @@
                 this.inputContents = this.inputContents.bind(this);
                 this.keyDownHandler = this.keyDownHandler.bind(this);
                 this.keyUpHandler = this.keyUpHandler.bind(this);
-
+                this.submitContent = this.submitContent.bind(this);
                 // outer 라는 속성 이름으로 ref를 만들겠다
                 this.outer = React.createRef();
                 this.chatTextarea = React.createRef();
@@ -774,6 +781,7 @@
                                                     onInput={this.inputContents} 
                                                     onKeyDown={this.keyDownHandler}
                                                     onKeyUp={this.keyUpHandler}
+                                                    onKeyPress={this.submitContent}
                                                 ></textarea></span>
                                     <span><img src="img/emoji.png" alt="emoji" /></span>
                                     <span><img src="img/hashtag.png" alt="hashtag" /></span>
@@ -790,15 +798,15 @@
                                     {keyboardRow2}
                                 </div>
                                 <div className="row" id="row3">
-                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "3.5rem", margin: "0rem 1rem 0rem 0rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
+                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "11%", margin: "0% 2% 0% 0%"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
                                     {keyboardRow3}
-                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "3.5rem",  margin: "0rem 0rem 0rem 1rem"}}>⌫</div>
+                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "11%",  margin: "0% 0% 0% 2%"}}>⌫</div>
                                 </div>
                                 <div className="row" id="row4">
-                                    <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "3.5rem"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "3.5rem"}}>☺️</div>
-                                    <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "16rem", fontSize: "1rem", fontWeight: "400"}}>간격</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "7.5rem"}}>⏎</div>
+                                    <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "11%"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "11%"}}>☺️</div>
+                                    <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "50%", fontSize: "1rem", fontWeight: "400"}}>간격</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "23%"}}>⏎</div>
                                 </div>
                             </div>
                         </section>
@@ -915,12 +923,21 @@
                 this.changeKeyboardType(e.code);   // 문자나 레이아웃 변경
                 this.effectSymbolKeyDown(e);  // 시스템키들 개별 이벤트
                 this.effectShiftKeyDown(e); // 한글 쌍자음 이벤트 - shift 누를 때
-                this.submitContent(e);  // 엔터키 이벤트
+                // this.submitContent(e);  // 엔터키 이벤트 => onKeyDown 이벤트로부터 onKeyPress 이벤트로 옮김. 이유는 해당 함수에 각주로.
 
             }
 
             // enter는 상위 컴포넌트로 submit하고 shif+enter는 다음 줄로 넘어가기
             submitContent(e) {
+                console.log(e);
+                // 한글은 입력할 때 자음, 모음, 받침 등을 조합해서 만든다.
+                // 이때 아직 조합 중인 글자는 커서가 깜빡이고 밑에 밑줄이 그어 있다.
+                // 이 상태에서 엔터나 스페이스, 백스페이스 등을 누르면 두 번 입력된다.
+                // 이러한 현상을 해결하려면 KeyboardEvent에서 isComposing 속성을 확인하면 된다.
+                // 조합 중인 글자는 isComposing이 true다.
+                // 조합이 끝난 글자는 false다.
+                // 따라서 이벤트는 조합이 끝난 글자 false에만 작동하도록 만든다.
+                if(e.isComposing) return;   
                 if(e.code=='Enter') {
                     if(e.shiftKey) {
                         // shift + enter 입력했을 때
