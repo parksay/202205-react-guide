@@ -269,7 +269,6 @@
             background-color: #d5d7dd;
             padding: 5px 2px;
             height: 16rem;
-            font-family: 'HelveticaNeue-UltraLight', 'Helvetica Neue UltraLight', 'Helvetica Neue', Arial, Helvetica, sans-serif;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -311,7 +310,6 @@
             border-radius: 7px;
             width: 9%;
             text-align: center;
-            font-family: Helvetica;
             color: #000000;
         }
 
@@ -452,7 +450,6 @@
                     lasChatTime = this.chat.current.state.yourLastChatTime;
                 }
 
-                if(contents == 'a' ) debugger;
                 // 일단 기본값은 내가 가장 마지막 말풍선이니까 내 isLastChat는 true로 가져가고, 만약에 이러이러한 조건이 맞다면 바로 이전 말풍선에서 시간만 지워주면 되지.
                 if(oldList[oldList.length-1].isMyChat == isMyChat) { // 내가 말했으면 내 말풍선이, 친구가 말했으면 친구 말풍선이 그대로 이어지면서,
                     if(lasChatTime == chatTime) {   // 말풍선 입력한 시간도 마지막 말풍선과 같은 시각일 경우에만
@@ -534,6 +531,8 @@
                         console.log('next line');
                         // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
                     } else {
+                        if(e.isComposing) return;
+                        e.preventDefault(); 
                         const t = new Date(this.props.appTime);
                         const time = this.chatTimeFormatter(t);
                         this.props.inputHandler(0, this.state.contents, time);
@@ -557,7 +556,7 @@
                 return ( <textarea 
                                 value={this.state.contents} 
                                 onInput={this.inputContents} 
-                                onKeyDown={this.enterContents} 
+                                onKeyPress={this.enterContents} 
                                 style={{boder:"solid black 1px", margin:"0rem 2rem"}} 
                                 placeholder="친구 입장에서 메세지 보내기"
                             ></textarea> );
@@ -588,7 +587,10 @@
                             </span>
                         </div>
                         <div className="chat-info">
-                            <span>&lt; {this.state.unreadChat}</span>
+                            <span>
+                                <img className="goback" src="img/back.png" alt="back" style={{width: "1.3rem", height: "auto", position:"relative", top:'2px'}}/>
+                                {this.state.unreadChat}
+                            </span>
                             <span name="yourId">{this.state.chatRoomName}</span>
                             <span>
                                 <span><img style={{position: "relative", top:"0.25rem"}} src="img/search.png" /></span>
@@ -708,13 +710,15 @@
                 super(props);
                 
                 // 내부에서만 쓰는 함수는 this를 bind해주지 않아도 됨. 실행 주체가 바뀌는 경우에만 bind 해줌
-                this.inputContents = this.inputContents.bind(this);
+                this.setTextareaHeight = this.setTextareaHeight.bind(this);
                 this.keyDownHandler = this.keyDownHandler.bind(this);
-                this.keyUpHandler = this.keyUpHandler.bind(this);
                 this.submitContent = this.submitContent.bind(this);
+                this.inputContents = this.inputContents.bind(this);
+                this.keyUpHandler = this.keyUpHandler.bind(this);
+
                 // outer 라는 속성 이름으로 ref를 만들겠다
-                this.outer = React.createRef();
                 this.chatTextarea = React.createRef();
+                this.outer = React.createRef();
 
                 this.state = {
                     contents: '',
@@ -723,7 +727,6 @@
                     keyboardType: 'is-korean',
                     pressedKeys: [],
                     isShift: false,
-                    heightTextarea: '1rem',
                     keyList: { 
                         row1: [
                             {code: 'KeyQ', Korean: 'ㅂ', English: 'q', Symbols: '1', Shift: 'ㅃ'},
@@ -762,6 +765,18 @@
 
             }
 
+            componentDidMount() {
+                this.setTextareaHeight();
+            }
+
+            componentDidUpdate() {
+                // textarea 내용물에 따라 높이 자동 설정
+                this.setTextareaHeight();
+                // 처음에는 textarea 에다가 onKeyPress / onKeyDown 등으로 이벤트를 걸어 놓았었는데 실행 순서가 안 맞음. 
+                // 먼저 높이부터 조절한 뒤에 contents를 submit 해버리니까, submit 하고 남은 contents는 공백인데 높이 조절은 그대로임.
+                // lifeCycle 이용하면 component를 update 완료 후에 실행하니까 순서가 맞음.
+
+            }
             render() {
                 // 키보드 안에 들어갈 키 내용물들 요소 만들기
                 const keyboardRow1 = this.getKeyboardRow(this.state.keyList.row1);
@@ -776,15 +791,17 @@
                                 <span><img src="img/plus.png" alt="plus" /></span>
                                 <span className="speak-contents-wrapper">
                                     <span><textarea type="text" ref={this.chatTextarea}
-                                                    style={{height: this.state.heightTextarea}}
                                                     value={this.state.contents} 
                                                     onInput={this.inputContents} 
                                                     onKeyDown={this.keyDownHandler}
                                                     onKeyUp={this.keyUpHandler}
                                                     onKeyPress={this.submitContent}
-                                                ></textarea></span>
-                                    <span><img src="img/emoji.png" alt="emoji" /></span>
-                                    <span><img src="img/hashtag.png" alt="hashtag" /></span>
+                                                /></span>
+                                    <span><img className="emojiBtn" src="img/emoji.png" alt="emoji" /></span>
+                                    {this.state.contents == ''  
+                                        ? <span><img className="hashtag" src="img/hashtag.png" alt="hashtag" /></span>
+                                        : <span><img className="submitBtn" src="img/submit_btn.png" alt="submitBtn" style={{width:"1.8rem"}} /></span>
+                                    }
                                 </span>
                             </div>
                         </section>
@@ -798,15 +815,23 @@
                                     {keyboardRow2}
                                 </div>
                                 <div className="row" id="row3">
-                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "11%", margin: "0% 2% 0% 0%"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "#+=" : "⌂"}</div>
+                                    <div id="ShiftLeft" className={this.getKeyClassName(true, 'ShiftLeft')} style={{width: "11%", margin: "0% 2% 0% 0%"}}>
+                                        {this.state.keyboardType==this.state.keyboardSettings.symbols 
+                                            ? "#+=" 
+                                            : <img className="shift" src="img/shift.png" alt="shift" style={{width: "40%", height: "auto"}}/>}
+                                    </div>
                                     {keyboardRow3}
-                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "11%",  margin: "0% 0% 0% 2%"}}>⌫</div>
+                                    <div id="Backspace" className={this.getKeyClassName(true, 'Backspace')} style={{width: "11%",  margin: "0% 0% 0% 2%"}}>
+                                        <img className="backspace" src="img/backspace.png" alt="backspace" style={{width: "50%", height: "auto", position:"relative", top: "4px"}}/>    
+                                    </div>
                                 </div>
                                 <div className="row" id="row4">
                                     <div id="ToggleKeyboard" className={this.getKeyClassName(true)} style={{width: "11%"}}>{this.state.keyboardType==this.state.keyboardSettings.symbols ? "한글" : "123"}</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "11%"}}>☺️</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "11%"}}><img className="emojiBtn" src="img/emoji_original.png" alt="emoji" style={{width: "40%", height: "auto"}}/></div>
                                     <div id="Space" className={this.getKeyClassName(false, 'Space')} style={{width: "50%", fontSize: "1rem", fontWeight: "400"}}>간격</div>
-                                    <div className={this.getKeyClassName(true)} style={{width: "23%"}}>⏎</div>
+                                    <div className={this.getKeyClassName(true)} style={{width: "23%"}}>
+                                        <img className="enter" src="img/enter.png" alt="enter" style={{width: "20%", height: "auto", position:"relative", top: "4px"}}/>     
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -822,27 +847,17 @@
                     contents: e.target.value
                 });
 
-                //textarea 최대 높이 설정
-                this.setTextareaHeight();
 
             }
 
             setTextareaHeight() {
                 // textarea 최대 높이 설정
-                const contentsHeight = this.chatTextarea.current.scrollHeight;
-                const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-                let maxHeight;
-                let x = 6;
-                // 5rem보다 작은지 확인, 작으면 4rem보다 작은지 확인, 작으면 3rem보다 작은지 확인, 크면 4rem 그대로 넣기
-                while(x > 0) {
-                    x--;
-                    if(contentsHeight < x * rem) {
-                        maxHeight = x * rem;
-                    } else {
-                        break;
-                    }
-                }
-                this.setState({heightTextarea: x*rem});
+                this.chatTextarea.current.style.height = "1px";
+                const contentsHeight = parseInt(this.chatTextarea.current.scrollHeight);
+                // const rem = parseFloat(getComputedStyle(document.documentElement).fontSize); // get font rem from documetn
+                const newHeight = contentsHeight + "px";
+                this.chatTextarea.current.style.height = newHeight;
+                this.chatTextarea.current.parentNode.parentNode.style.paddingTop = (contentsHeight - 5) + "px";
 
             }
 
@@ -944,6 +959,8 @@
                         console.log('next line');
                         // 그러고 보니 지금 textarea라서 엔터 누르면 다음 줄로 넘어가는 건 아무것도 하지 않아도 저절로 그렇게 되네. shift + enter 눌렀을 때 submit 되는 기능만 만들어 두면 될 듯.
                     } else {
+                        e.preventDefault(); // 엔터키 쳤을 때 textarea value에 다음 줄로 넘어간 줄이 남아 있어서 엔터 이벤트 막기.
+
                         // props 를 그대로 참조하면 그 props를 넣어주는 상위 컴포넌트에서 state가 바뀔 때마다 그 값을 참조하고 있는 다른 요소들도 값이 함께 바뀌게 됨.
                         // 즉 모든 말풍선이 같은 시각을 가르키게 됨.
                         // 따라서 Date 객체가 state와는 별개의 객체로 존재해야 함.
