@@ -391,10 +391,6 @@
                 this.state = {
                     appTime: new Date().getTime(),
                     chatList: [
-                            {isMyChat:1, contents:'당근이세요?', chatTime: '오후 1:21', isFirstChat: true, isLastChat: true},
-                            {isMyChat:0, contents:'네 안녕하세요', chatTime: '오후 1:23', isFirstChat: true, isLastChat: true},
-                            {isMyChat:1, contents:'혹시 교통비만 빼주실 수 있을까요 ㅠㅠㅠ', chatTime: '오후 1:25', isFirstChat: true, isLastChat: true},
-                            {isMyChat:0, contents:'ㅈㅅ....', chatTime: '오후 1:28', isFirstChat: true, isLastChat: true},
                         ]
                 }
 
@@ -440,8 +436,6 @@
                         if(!item.isMyChat) return item;
                     });
                 }
-                // 말풍선 중에 마지막 말풍선에 접근
-                const lastItem = tempChatList[tempChatList.length - 1];
                 // 친구 말풍선에서 묶음 중에 첫 말풍선인지. 지금은 내 말풍선에서는 이 속성을 쓰고 있지 않기 때문에 분기문 처리를 안 했지만, 내 말풍선에서도 쓰는 속성이라면 분기문 처리까지 해야 할 듯.
                 let isFirstChat = true;
                 // 나중에 새로 추가할 말풍선에 넣어줄 isLastChat 값.
@@ -453,17 +447,21 @@
                 } else {
                     lasChatTime = this.chat.current.state.yourLastChatTime;
                 }
-
-                // 일단 기본값은 내가 가장 마지막 말풍선이니까 내 isLastChat는 true로 가져가고, 만약에 이러이러한 조건이 맞다면 바로 이전 말풍선에서 시간만 지워주면 되지.
-                if(oldList[oldList.length-1].isMyChat == isMyChat) { // 내가 말했으면 내 말풍선이, 친구가 말했으면 친구 말풍선이 그대로 이어지면서,
-                    if(lasChatTime == chatTime) {   // 말풍선 입력한 시간도 마지막 말풍선과 같은 시각일 경우에만
-                        // 기존 마지막 말풍선에서는 시간을 지우기
-                        lastItem.isLastChat = false;
-                        // 친구 말풍선에서는 프로필사진과 친구 아이디 지우기
-                        isFirstChat = false;
+                
+                // 말풍선 중에 마지막 말풍선에 접근
+                const lastItem = tempChatList[tempChatList.length - 1];
+                if(newList.length > 0) {    // 기존에 말풍선이 있을 때만 새로운 말풍선과 이전 말풍선을 비교하는 작업하기, 아니면 바로 저 아래로 넘어가서 새 말풍선 그냥 넣으면 됨
+                    // 일단 기본값은 내가 가장 마지막 말풍선이니까 내 isLastChat는 true로 가져가고, 만약에 이러이러한 조건이 맞다면 바로 이전 말풍선에서 시간만 지워주면 되지.
+                    if(oldList[oldList.length-1].isMyChat == isMyChat) { // 내가 말했으면 내 말풍선이, 친구가 말했으면 친구 말풍선이 그대로 이어지면서,
+                        if(lasChatTime == chatTime) {   // 말풍선 입력한 시간도 마지막 말풍선과 같은 시각일 경우에만
+                            // 기존 마지막 말풍선에서는 시간을 지우기
+                            lastItem.isLastChat = false;
+                            // 친구 말풍선에서는 프로필사진과 친구 아이디 지우기
+                            isFirstChat = false;
+                        } 
                     } 
                 } 
-
+                
                 // isLastChat 값이 true든 false든 상관 없이 계속 갱신해 주면 됨. 어차피 같으면 같은 값으로 들어갈 거고, 다르면 다른 값이 들어갈 거니까.
                 if(isMyChat) {
                     this.chat.current.setState({myLastChatTime: chatTime});
@@ -966,7 +964,7 @@
                         e.preventDefault(); // 엔터키 쳤을 때 textarea value에 다음 줄로 넘어간 줄이 남아 있어서 엔터 이벤트 막기.
 
                         // props 를 그대로 참조하면 그 props를 넣어주는 상위 컴포넌트에서 state가 바뀔 때마다 그 값을 참조하고 있는 다른 요소들도 값이 함께 바뀌게 됨.
-                        // 즉 모든 말풍선이 같은 시각을 가르키게 됨.
+                        // 즉 모든 말풍선이 같은 시각을 가리키게 됨.
                         // 따라서 Date 객체가 state와는 별개의 객체로 존재해야 함.
                         // 따라서 app에서 들고 있는 state 는 UTC 타임만 들고 있고, 다른 데에서 사용할 때는 그 UTC를 파라미터로 넣은 새로운 Date 객체를 매번 따로 만들어서 사용하기.
                         const t = new Date(this.props.appTime);
